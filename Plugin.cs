@@ -24,6 +24,8 @@ namespace SuperchargedFollowers
         //Config for Tarots
         internal static ConfigEntry<float> ammoConfig;
         public static List<FollowerInfo> summonList;
+        public static FollowerInfo commander;
+
         public static bool summoned = false;
 
         private void Awake()
