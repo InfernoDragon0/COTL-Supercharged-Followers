@@ -11,7 +11,7 @@ namespace Namespace;
 public class BarracksStructure: CustomStructure
 {
     public override string InternalName => "BARRACKS_STRUCTURE";
-    public override Type Interaction => base.Interaction; //TODO: add interaction
+    public override Type Interaction => typeof(Interaction_Barracks); //TODO: add interaction
     public override Sprite Sprite => TextureHelper.CreateSpriteFromPath(Path.Combine(Plugin.PluginPath, "Assets/Barracks.png"));
     public override int BuildDurationMinutes => 30;
     public override Vector2Int Bounds => new(2, 2);
