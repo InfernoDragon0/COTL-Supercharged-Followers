@@ -22,12 +22,21 @@ namespace SuperchargedFollowers.Patches
             spawnedFollower.Follower.Spine.AnimationState.AddAnimation(1, "Conversations/idle-hate", true, 0.0f);
             spawnedFollower.Follower.GetComponent<EnemyFollower>().enabled = true;
 
+            var modifiedFollower = spawnedFollower.Follower.GetComponent<EnemyFollower>();
+            
+            // DAMAGE BALANCING TODO:check if commander TODO: Prestiges
+            modifiedFollower.Damage = spawnedFollower.FollowerBrain._directInfoAccess.FollowerLevel * 0.5f;
+
+            // HEALTH BALANCING TODO:check if commander
             Health component = spawnedFollower.Follower.GetComponent<Health>();
+            component.totalHP = 1f + (spawnedFollower.FollowerBrain._directInfoAccess.FollowerLevel * 0.5f);
+            component.HP = component.totalHP;
+
             //set to ally
             component.team = Health.Team.PlayerTeam;
-            Plugin.Log.LogInfo("ally was " +  component.isPlayerAlly);
             component.isPlayerAlly = true;
             Plugin.Log.LogInfo("ally was " + component.isPlayerAlly);
+            Plugin.Log.LogInfo("hp was " + component._totalHP + " and _hp is " + component._HP + " and " + component.HP);
 
             return spawnedFollower;
         }
@@ -51,7 +60,6 @@ namespace SuperchargedFollowers.Patches
                 }
             }
             return summonedFollowers;
-
         }
 
         [HarmonyPatch(typeof(Door), nameof(Door.ChangeRoom))]
@@ -63,7 +71,7 @@ namespace SuperchargedFollowers.Patches
                 return true;
             }
             Plugin.summoned = true;
-            Plugin.summonList = RandomFollowers();
+            // Plugin.summonList = RandomFollowers();
             Plugin.Log.LogInfo("Summoning followers");
             for (int i = 0; i <  Plugin.summonList.Count; i++)
             {
@@ -154,7 +162,7 @@ namespace SuperchargedFollowers.Patches
             Plugin.Log.LogInfo("got wait for enemy follower is " + follower);
             follower.Spine.Initialize(false);
             follower.state.CURRENT_STATE = StateMachine.State.Idle;
-            follower.Spine.AnimationState.SetAnimation(0, "idle-enemy", true);
+            follower.Spine.AnimationState.SetAnimation(0, "Conversations/idle-nice", true);
             Plugin.Log.LogInfo("waiting for room active");
 
             while (!GameManager.RoomActive) { 
@@ -210,10 +218,13 @@ namespace SuperchargedFollowers.Patches
         {
             follower.MyState = EnemyFollower.State.WaitAndTaunt;
             follower.state.CURRENT_STATE = StateMachine.State.Idle;
+            
+            //ATTACK SPEED BALANCING TODO: change values based on follower level
             follower.AttackDelay = UnityEngine.Random.Range(follower.AttackDelayRandomRange.x, follower.AttackDelayRandomRange.y);
             if (follower.health.HasShield)
                 follower.AttackDelay = 2.5f;
             follower.MaxAttackDelay = UnityEngine.Random.Range(follower.MaxAttackDelayRandomRange.x, follower.MaxAttackDelayRandomRange.y);
+            
             bool Loop = true;
 
             while (Loop)

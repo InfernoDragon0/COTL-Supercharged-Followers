@@ -6,7 +6,7 @@ using SuperchargedFollowers;
 using UnityEngine;
 
 namespace Namespace;
-public class Interaction_Rally : Interaction
+public class Interaction_Barracks : Interaction
 {
     public Structure Structure;
     private bool Activating = false;
@@ -15,11 +15,11 @@ public class Interaction_Rally : Interaction
     public float DistanceToTriggerDeposits = 5f;
 
     public StructuresData StructureInfo => this.Structure.Structure_Info;
-    public RallyStructure RallyStructure => this.Structure.Brain as RallyStructure;
+    public BarracksStructure BarracksStructure => this.Structure.Brain as BarracksStructure;
     public override void GetLabel()
     {
-        this.secondaryLabel = "Select Commander";
-        this.label = "Rally Followers";
+        this.secondaryLabel = "Follower Prestige Levels";
+        this.label = "Change Follower Class";
     }
 
     private void Start()
@@ -30,7 +30,7 @@ public class Interaction_Rally : Interaction
     public override void OnEnable()
     {
         base.OnEnable();
-        Plugin.Log.LogInfo("Rally OnEnable");
+        Plugin.Log.LogInfo("Barracks OnEnable");
         Structure = GetComponentInParent<Transform>().GetComponent<Structure>();
     }
 
@@ -62,14 +62,7 @@ public class Interaction_Rally : Interaction
         {
             foreach (FollowerInformationBox fib in followerSelectMenu._followerInfoBoxes)
             {
-                if (Plugin.summonList.Contains(fib._followerInfo)) {
-                    fib.FollowerRole.text = "Currently Rallied! |  Health: " + (0.5 + fib._followerInfo.FollowerLevel * 1)  + " | Attack: " + (fib._followerInfo.FollowerLevel * 0.5);
-                    fib.FollowerSpine.AnimationState.SetAnimation(0, "attack-impact-multi", true);
-
-                }
-                else {
-                    fib.FollowerRole.text = "Rally | Health: " + (0.5 + fib._followerInfo.FollowerLevel * 1) + " | Attack: " + (fib._followerInfo.FollowerLevel * 0.5);
-                }
+                fib.FollowerRole.text = "Warrior | Prestige 0 |  Health: " + (0.5 + fib._followerInfo.FollowerLevel * 1)  + " | Attack: " + (fib._followerInfo.FollowerLevel * 0.5);
             }
         });
         followerSelectMenu.OnHidden += () =>
@@ -107,19 +100,14 @@ public class Interaction_Rally : Interaction
             }
         }
 
-         followerSelectMenu.Show(DataManager.Instance.Followers, blackList, false, UpgradeSystem.Type.Count, true, true, true);
+        followerSelectMenu.Show(DataManager.Instance.Followers, blackList, false, UpgradeSystem.Type.Count, true, true, true);
 
-        followerSelectMenu.OnFollowerSelected += new System.Action<FollowerInfo>(this.OnCommanderChosen);
+        followerSelectMenu.OnFollowerSelected += new System.Action<FollowerInfo>(this.OnPrestigeChosen);
         followerSelectMenu.OnShown += new System.Action(() =>
         {
             foreach (FollowerInformationBox fib in followerSelectMenu._followerInfoBoxes)
             {
-                if (Plugin.commander == fib._followerInfo) {
-                    fib.FollowerRole.text = "Current Commander |  Health: " + (150 + fib._followerInfo.FollowerLevel * 40)  + " | Attack: " + (fib._followerInfo.FollowerLevel * 4);
-                }
-                else {
-                    fib.FollowerRole.text = "Select As Commander | Health: " + (150 + fib._followerInfo.FollowerLevel * 40) + " | Attack: " + (fib._followerInfo.FollowerLevel * 4);
-                }
+                fib.FollowerRole.text = "Warrior | Prestige 0 |  Health: " + (0.5 + fib._followerInfo.FollowerLevel * 1)  + " | Attack: " + (fib._followerInfo.FollowerLevel * 0.5);
             }
         });
         followerSelectMenu.OnHidden += () =>
@@ -144,14 +132,10 @@ public class Interaction_Rally : Interaction
     }
 
     public void OnFollowerChosen(FollowerInfo followerInfo) {
-        if (Plugin.summonList.Contains(followerInfo)) {
-            Plugin.summonList.Remove(followerInfo);
-        } else {
-            Plugin.summonList.Add(followerInfo);
-        }
+        //open a new menu to select the class
     }
 
-    public void OnCommanderChosen(FollowerInfo followerInfo) {
-        Plugin.commander = followerInfo;
+    public void OnPrestigeChosen(FollowerInfo followerInfo) {
+        //open a menu to allow upgrades to be chosen
     }
 }
