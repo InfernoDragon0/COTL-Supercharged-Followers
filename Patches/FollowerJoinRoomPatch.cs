@@ -37,7 +37,7 @@ namespace SuperchargedFollowers.Patches
 
             // HEALTH BALANCING TODO:check if commander
             Health component = spawnedFollower.Follower.GetComponent<Health>();
-            component.totalHP = 3f + prestigeBonus[1] + classBonus[1] + commanderBonus[1] + necklaceBonus[1];
+            component.totalHP = (3f + prestigeBonus[1] + classBonus[1] + commanderBonus[1]) * necklaceBonus[1];
             component.HP = component.totalHP;
 
             //set to ally
@@ -309,12 +309,49 @@ namespace SuperchargedFollowers.Patches
             Plugin.Log.LogInfo("Room wascleared");
         }
 
-        public static List<int> GetClassBonuses(FollowerInfo followerInfo) {
-            List<int> prestigeBonuses = [];
-            int attackBonus = 0;
-            int healthBonus = 0;
-            int delayBonus = 0;
-            int movementSpeedBonus = 0;
+        public static List<float> GetClassBonuses(FollowerInfo followerInfo) {
+            float attackBonus = 0;
+            float healthBonus = 0;
+            float delayBonus = 0;
+            float movementSpeedBonus = 0;
+            float regenBonus = 0;
+            float blueHealthChance = 0;
+            float curseRegenBonus = 0;
+            float dropPrestigeChance = 0;
+            float critChance = 0;
+
+            foreach (InventoryItem inventoryItem in followerInfo.Inventory) {
+                if (inventoryItem.type == (int)Plugin.holiday) {
+                    delayBonus = 2f;
+                    attackBonus = -0.5f;
+                    break;
+                }
+                if (inventoryItem.type == (int)Plugin.warrior) {
+                    attackBonus = 1f;
+                    healthBonus = 2f;
+                    break;
+                }
+                if (inventoryItem.type == (int)Plugin.missionary) {
+                    healthBonus = 1f;
+                    movementSpeedBonus = 2f;
+                    break;
+                }
+                if (inventoryItem.type == (int)Plugin.undertaker) {
+                    regenBonus = 0.5f;
+                    break;
+                }
+            }
+            List<float> prestigeBonuses = [
+                attackBonus,
+                healthBonus,
+                delayBonus,
+                movementSpeedBonus,
+                regenBonus,
+                blueHealthChance,
+                curseRegenBonus,
+                dropPrestigeChance,
+                critChance
+            ];
             
             return prestigeBonuses;
         }
@@ -330,7 +367,7 @@ namespace SuperchargedFollowers.Patches
                     prestigeBonuses[0] = 2;
                     break;
                 case InventoryItem.ITEM_TYPE.Necklace_4: //add health
-                    prestigeBonuses[1] = 5;
+                    prestigeBonuses[1] = 3;
                     break;
                 
             }
