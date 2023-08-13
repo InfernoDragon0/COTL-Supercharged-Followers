@@ -6,6 +6,8 @@ using BepInEx.Configuration;
 using System.Collections.Generic;
 using COTL_API.CustomInventory;
 using SuperchargedFollowers.ProxyItems;
+using COTL_API.CustomStructures;
+using SuperchargedFollowers.Structures;
 
 namespace SuperchargedFollowers
 {
@@ -44,6 +46,10 @@ namespace SuperchargedFollowers
 
         public static InventoryItem.ITEM_TYPE prestige;
 
+        //STRUCTURES
+        public static StructureBrain.TYPES rally;
+        public static StructureBrain.TYPES barracks;
+
         public static List<int> allJobs;
 
         private void Awake()
@@ -73,6 +79,8 @@ namespace SuperchargedFollowers
             ];
 
             //ADD: STRUCTURES
+            rally = CustomStructureManager.Add(new RallyStructure());
+            barracks = CustomStructureManager.Add(new BarracksStructure());
 
         }
 
