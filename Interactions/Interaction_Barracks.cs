@@ -175,6 +175,14 @@ public class Interaction_Barracks : Interaction
             Plugin.Log.LogInfo("selected " + a);
         };
 
+        //reset button
+        followerSelectMenu._missionInfoCardController._currentCard.MissionButtons[1].gameObject.SetActive(true);
+        followerSelectMenu._missionInfoCardController._currentCard.MissionButtons[1]._titleText.text = "Reset Prestige (Returns " + (followerInfo.FollowerLevel + 1) + " prestiges)";
+        followerSelectMenu._missionInfoCardController._currentCard.MissionButtons[1]._amountText.text = "" + followerInfo.FollowerLevel + 1;
+        followerSelectMenu._missionInfoCardController._currentCard.MissionButtons[1]._type = Plugin.prestige;
+        followerSelectMenu._missionInfoCardController._currentCard.MissionButtons[1].OnMissionSelected += (InventoryItem.ITEM_TYPE a) => {
+            Plugin.Log.LogInfo("selected return " + a);
+        };
         
         followerSelectMenu.OnMissionaryChosen += new System.Action<FollowerInfo, InventoryItem.ITEM_TYPE>(this.OnClassChosen);
         followerSelectMenu.OnHidden += () =>
