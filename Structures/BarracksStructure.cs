@@ -3,11 +3,11 @@ using System.IO;
 using COTL_API.CustomStructures;
 using COTL_API.Helpers;
 using Lamb.UI.BuildMenu;
-using SuperchargedFollowers;
+using SuperchargedFollowers.Interactions;
 using UnityEngine;
 
 
-namespace Namespace;
+namespace SuperchargedFollowers.Structures;
 public class BarracksStructure: CustomStructure
 {
     public override string InternalName => "BARRACKS_STRUCTURE";

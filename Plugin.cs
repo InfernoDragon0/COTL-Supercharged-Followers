@@ -4,6 +4,8 @@ using HarmonyLib;
 using System.IO;
 using BepInEx.Configuration;
 using System.Collections.Generic;
+using COTL_API.CustomInventory;
+using SuperchargedFollowers.ProxyItems;
 
 namespace SuperchargedFollowers
 {
@@ -23,10 +25,26 @@ namespace SuperchargedFollowers
 
         //Config for Tarots
         internal static ConfigEntry<float> ammoConfig;
+
+        //Summoning list for Rally Banner
         public static List<FollowerInfo> summonList;
         public static FollowerInfo commander;
 
         public static bool summoned = false;
+
+        //Temp List to store summoned follower to track alive or dead
+        public static List<EnemyFollower> tempSummoned;
+
+        //ITEMS
+        public static InventoryItem.ITEM_TYPE holiday;
+        public static InventoryItem.ITEM_TYPE prayer;
+        public static InventoryItem.ITEM_TYPE missionary;
+        public static InventoryItem.ITEM_TYPE warrior;
+        public static InventoryItem.ITEM_TYPE undertaker;
+
+        public static InventoryItem.ITEM_TYPE prestige;
+
+        public static List<int> allJobs;
 
         private void Awake()
         {
@@ -36,6 +54,26 @@ namespace SuperchargedFollowers
 
             //SETUP: Config
             /*ammoConfig = Config.Bind("SuperchargedTarots", "Ammo", 66f, "Fervor Use Discount (higher the lesser, but dont go over 100)");*/
+
+            //ADD: ITEMS
+            holiday = CustomItemManager.Add(new Holiday());
+            prayer = CustomItemManager.Add(new Prayer());
+            missionary = CustomItemManager.Add(new Missionary());
+            warrior = CustomItemManager.Add(new Warrior());
+            undertaker = CustomItemManager.Add(new Undertaker());
+
+            prestige = CustomItemManager.Add(new Prestige());
+
+            allJobs = [
+                (int)holiday,
+                (int)prayer,
+                (int)missionary,
+                (int)warrior,
+                (int)undertaker
+            ];
+
+            //ADD: STRUCTURES
+
         }
 
         private void OnEnable()

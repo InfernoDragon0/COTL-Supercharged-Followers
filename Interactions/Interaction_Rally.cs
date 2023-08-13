@@ -2,10 +2,10 @@ using System.Collections.Generic;
 using Lamb.UI;
 using Lamb.UI.FollowerSelect;
 using src.Extensions;
-using SuperchargedFollowers;
+using SuperchargedFollowers.Structures;
 using UnityEngine;
 
-namespace Namespace;
+namespace SuperchargedFollowers.Interactions;
 public class Interaction_Rally : Interaction
 {
     public Structure Structure;

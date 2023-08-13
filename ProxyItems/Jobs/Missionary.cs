@@ -5,7 +5,7 @@ using SuperchargedFollowers;
 using UnityEngine;
 
 
-namespace Namespace;
+namespace SuperchargedFollowers.ProxyItems;
 public class Missionary : CustomInventoryItem
 {
     public override string InternalName => "Missionary_Proxy";

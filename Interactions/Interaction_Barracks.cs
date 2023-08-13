@@ -2,10 +2,11 @@ using System.Collections.Generic;
 using Lamb.UI;
 using Lamb.UI.FollowerSelect;
 using src.Extensions;
-using SuperchargedFollowers;
+using src.UI.Menus;
+using SuperchargedFollowers.Structures;
 using UnityEngine;
 
-namespace Namespace;
+namespace SuperchargedFollowers.Interactions;
 public class Interaction_Barracks : Interaction
 {
     public Structure Structure;
@@ -122,7 +123,7 @@ public class Interaction_Barracks : Interaction
             this.OnHidden();
         };
 
-        this.Activating = false;
+        // this.Activating = false;
     }
 
     public void OnHidden() {
@@ -132,10 +133,72 @@ public class Interaction_Barracks : Interaction
     }
 
     public void OnFollowerChosen(FollowerInfo followerInfo) {
+        GameManager.GetInstance().OnConversationNew();
+        HUD_Manager.Instance.Hide(false, 0);
+
         //open a new menu to select the class
+        UIMissionaryMenuController followerSelectMenu = MonoSingleton<UIManager>.Instance.MissionaryMenuTemplate.Instantiate();
+        followerSelectMenu.FollowerSelected(followerInfo);
+
+        followerSelectMenu.OnMissionaryChosen += new System.Action<FollowerInfo, InventoryItem.ITEM_TYPE>(this.OnClassChosen);
+        followerSelectMenu.OnHidden += () =>
+        {
+            followerSelectMenu = null;
+            this.OnHidden();
+        };
+
+        followerSelectMenu.OnCancel += () =>
+        {
+            followerSelectMenu = null;
+            this.OnHidden();
+        };
+        followerSelectMenu.Show();
     }
 
     public void OnPrestigeChosen(FollowerInfo followerInfo) {
-        //open a menu to allow upgrades to be chosen
+        //open a menu to determine how many prestige to give
+        GameManager.GetInstance().OnConversationNew();
+        HUD_Manager.Instance.Hide(false, 0);
+
+        //open a new menu to select the class
+        UIMissionaryMenuController followerSelectMenu = MonoSingleton<UIManager>.Instance.MissionaryMenuTemplate.Instantiate();
+        followerSelectMenu.FollowerSelected(followerInfo);
+        Plugin.Log.LogInfo("we have x missions here");
+        Plugin.Log.LogInfo(followerSelectMenu._missionInfoCardController._currentCard.MissionButtons.Length);
+
+        //put a button to show "Give until next level (3 prestiges)"
+        
+        
+        followerSelectMenu.OnMissionaryChosen += new System.Action<FollowerInfo, InventoryItem.ITEM_TYPE>(this.OnClassChosen);
+        followerSelectMenu.OnHidden += () =>
+        {
+            followerSelectMenu = null;
+            this.OnHidden();
+        };
+
+        followerSelectMenu.OnCancel += () =>
+        {
+            followerSelectMenu = null;
+            this.OnHidden();
+        };
+        followerSelectMenu.Show();
+    }
+
+    public void OnClassChosen(FollowerInfo followerInfo, InventoryItem.ITEM_TYPE classType) {
+        //change the class of the follower
+        Plugin.Log.LogInfo("class chosen " + classType);
+
+        //if follower inventory contains any other proxy items, remove them
+        foreach (InventoryItem item in followerInfo.Inventory)
+        {
+            if (Plugin.allJobs.Contains(item.type))
+            {
+                followerInfo.Inventory.Remove(item);
+            }
+        }
+        //then, add the new proxy item
+        followerInfo.Inventory.Add(new InventoryItem(classType, 1));
+
+        //check if the proxy items might be dumped out to the chest over time
     }
 }
