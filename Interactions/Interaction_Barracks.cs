@@ -63,7 +63,8 @@ public class Interaction_Barracks : Interaction
         {
             foreach (FollowerInformationBox fib in followerSelectMenu._followerInfoBoxes)
             {
-                fib.FollowerRole.text = "Warrior | Prestige 0 |  Health: " + (0.5 + fib._followerInfo.FollowerLevel * 1)  + " | Attack: " + (fib._followerInfo.FollowerLevel * 0.5);
+                var prestige = Helpers.Bonuses.GetPrestigeBonuses(fib.FollowerInfo);
+                fib.FollowerRole.text = "Warrior | Prestige " + prestige.Level + " |  Health: " + (0.5 + fib._followerInfo.FollowerLevel * 1)  + " | Attack: " + (fib._followerInfo.FollowerLevel * 0.5);
             }
         });
         followerSelectMenu.OnHidden += () =>
@@ -108,7 +109,8 @@ public class Interaction_Barracks : Interaction
         {
             foreach (FollowerInformationBox fib in followerSelectMenu._followerInfoBoxes)
             {
-                fib.FollowerRole.text = "Warrior | Prestige 0 |  Health: " + (0.5 + fib._followerInfo.FollowerLevel * 1)  + " | Attack: " + (fib._followerInfo.FollowerLevel * 0.5);
+                var prestige = Helpers.Bonuses.GetPrestigeBonuses(fib.FollowerInfo);
+                fib.FollowerRole.text = "Warrior | Prestige " + prestige.Level + " |  Health: " + (0.5 + fib._followerInfo.FollowerLevel * 1)  + " | Attack: " + (fib._followerInfo.FollowerLevel * 0.5);
             }
         });
         followerSelectMenu.OnHidden += () =>
@@ -149,13 +151,72 @@ public class Interaction_Barracks : Interaction
         // }
         // followerSelectMenu._missionInfoCardController._currentCard._missionButtons = list.ToArray();
 
-        followerSelectMenu._missionInfoCardController._currentCard.MissionButtons[0].gameObject.SetActive(true);
-        followerSelectMenu._missionInfoCardController._currentCard.MissionButtons[0]._titleText.text = "Give until next level (" + (followerInfo.FollowerLevel + 1) + " prestiges)";
-        followerSelectMenu._missionInfoCardController._currentCard.MissionButtons[0]._amountText.text = "" + followerInfo.FollowerLevel + 1;
-        followerSelectMenu._missionInfoCardController._currentCard.MissionButtons[0]._type = Plugin.prestige;
-        followerSelectMenu._missionInfoCardController._currentCard.MissionButtons[0].OnMissionSelected += (InventoryItem.ITEM_TYPE a) => {
+        //check length of buttons, and assign classes based on the current
+        var length = followerSelectMenu._missionInfoCardController._currentCard.MissionButtons.Length;
+        var button = followerSelectMenu._missionInfoCardController._currentCard.MissionButtons[0];
+        MissionButton mb = Object.Instantiate(button, followerSelectMenu._missionInfoCardController._currentCard.transform.parent);
+        MissionButton mb2 = Object.Instantiate(button, followerSelectMenu._missionInfoCardController._currentCard.transform.parent);
+        MissionButton mb3 = Object.Instantiate(button, followerSelectMenu._missionInfoCardController._currentCard.transform.parent);
+        MissionButton mb4 = Object.Instantiate(button, followerSelectMenu._missionInfoCardController._currentCard.transform.parent);
+        MissionButton mb5 = Object.Instantiate(button, followerSelectMenu._missionInfoCardController._currentCard.transform.parent);
+        List<MissionButton> list = [mb, mb2, mb3, mb4, mb5];
+        //clear buttons
+        followerSelectMenu._missionInfoCardController._currentCard._missionButtons = list.ToArray();
+
+        //warrior
+        mb._titleText.text = "Warrior: Bonus Attack Damage and slightly slower Attack Speed";
+        mb._amountText.text = "1";
+        mb._type = Plugin.warrior;
+        // mb._icon = Plugin.warrior;
+        mb.OnMissionSelected += (InventoryItem.ITEM_TYPE a) => {
             Plugin.Log.LogInfo("selected " + a);
         };
+        mb.Configure(followerInfo);
+        mb.Start();
+        
+        //prayer
+        mb2._titleText.text = "Prayer: Bonus Health and slightly slower Attack Speed";
+        mb2._amountText.text = "1";
+        mb2._type = Plugin.prayer;
+        // mb2._icon = Plugin.prayer;
+        mb2.OnMissionSelected += (InventoryItem.ITEM_TYPE a) => {
+            Plugin.Log.LogInfo("selected " + a);
+        };
+        mb2.Configure(followerInfo);
+        mb2.Start();
+
+        //holiday
+        mb3._titleText.text = "Holiday: Bonus Health and slightly slower Attack Speed";
+        mb3._amountText.text = "1";
+        mb3._type = Plugin.holiday;
+        // mb3._icon = Plugin.holiday;
+        mb3.OnMissionSelected += (InventoryItem.ITEM_TYPE a) => {
+            Plugin.Log.LogInfo("selected " + a);
+        };
+        mb3.Configure(followerInfo);
+        mb3.Start();
+
+        //missionary
+        mb4._titleText.text = "Missionary: Bonus Health and slightly slower Attack Speed";
+        mb4._amountText.text = "1";
+        mb4._type = Plugin.missionary;
+        // mb4._icon = Plugin.missionary;
+        mb4.OnMissionSelected += (InventoryItem.ITEM_TYPE a) => {
+            Plugin.Log.LogInfo("selected " + a);
+        };
+        mb4.Configure(followerInfo);
+        mb4.Start();
+
+        //undertaker
+        mb5._titleText.text = "Undertaker: Bonus Health and slightly slower Attack Speed";
+        mb5._amountText.text = "1";
+        mb5._type = Plugin.undertaker;
+        // mb5._icon = Plugin.undertaker;
+        mb5.OnMissionSelected += (InventoryItem.ITEM_TYPE a) => {
+            Plugin.Log.LogInfo("selected " + a);
+        };
+        mb5.Configure(followerInfo);
+        mb5.Start();
 
         followerSelectMenu.OnMissionaryChosen += new System.Action<FollowerInfo, InventoryItem.ITEM_TYPE>(this.OnClassChosen);
         followerSelectMenu.OnHidden += () =>
@@ -196,12 +257,45 @@ public class Interaction_Barracks : Interaction
         followerSelectMenu._missionInfoCardController._currentCard.MissionButtons[1].gameObject.SetActive(true);
         followerSelectMenu._missionInfoCardController._currentCard.MissionButtons[1]._titleText.text = "Reset Prestige (Returns " + (followerInfo.FollowerLevel + 1) + " prestiges)";
         followerSelectMenu._missionInfoCardController._currentCard.MissionButtons[1]._amountText.text = "" + followerInfo.FollowerLevel + 1;
-        followerSelectMenu._missionInfoCardController._currentCard.MissionButtons[1]._type = Plugin.prestige;
+        followerSelectMenu._missionInfoCardController._currentCard.MissionButtons[1]._type = InventoryItem.ITEM_TYPE.BLACK_GOLD;
         followerSelectMenu._missionInfoCardController._currentCard.MissionButtons[1].OnMissionSelected += (InventoryItem.ITEM_TYPE a) => {
             Plugin.Log.LogInfo("selected return " + a);
         };
         
-        followerSelectMenu.OnMissionaryChosen += new System.Action<FollowerInfo, InventoryItem.ITEM_TYPE>(this.OnClassChosen);
+        followerSelectMenu.OnMissionaryChosen += new System.Action<FollowerInfo, InventoryItem.ITEM_TYPE>((FollowerInfo fi, InventoryItem.ITEM_TYPE itemtype) => {
+            Plugin.Log.LogInfo("missionary chosen" + itemtype);
+            if (itemtype == InventoryItem.ITEM_TYPE.BLACK_GOLD) {
+                //remove all prestige from the follower
+                int totalRemoved = 0;
+                foreach (InventoryItem item in fi.Inventory)
+                {
+                    if (item.type == (int)Plugin.prestige)
+                    {   
+                        totalRemoved += item.quantity;
+                        fi.Inventory.Remove(item);
+                    }
+                }
+                Inventory.AddItem(Plugin.prestige, totalRemoved);
+            }
+            else if (itemtype == Plugin.prestige) {
+                //add prestige until next level
+                int toNextLevel = Helpers.Bonuses.PrestigeToNextLevel(followerInfo);
+                //check if inventory has enough
+                int quantity = Inventory.GetItemQuantity(Plugin.prestige);
+                if (quantity >= toNextLevel) {
+                    //remove the prestige from inventory
+                    Inventory.ChangeItemQuantity(Plugin.prestige, -toNextLevel);
+                    //add the prestige to the follower
+                    for (int i = 0; i < toNextLevel; i++) {
+                        followerInfo.Inventory.Add(new InventoryItem(Plugin.prestige, 1));
+                    }
+                    NotificationCentreScreen.Play("Prestige level increased for " + followerInfo.Name);
+                }
+                else {
+                    NotificationCentreScreen.Play("Not enough Prestige to level, need " + toNextLevel + " Prestige");
+                }
+            }
+        });
         followerSelectMenu.OnHidden += () =>
         {
             followerSelectMenu = null;
@@ -233,4 +327,6 @@ public class Interaction_Barracks : Interaction
 
         //check if the proxy items might be dumped out to the chest over time
     }
+
+
 }
