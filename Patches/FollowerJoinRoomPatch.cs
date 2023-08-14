@@ -3,7 +3,6 @@ using HarmonyLib;
 using MMBiomeGeneration;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace SuperchargedFollowers.Patches
@@ -19,25 +18,24 @@ namespace SuperchargedFollowers.Patches
             spawnedFollower.Follower.Spine.AnimationState.AddAnimation(1, "Reactions/react-worried1", true, 0.0f);
             spawnedFollower.Follower.Spine.AnimationState.AddAnimation(1, "Conversations/idle-hate", true, 0.0f);
             spawnedFollower.Follower.GetComponent<EnemyFollower>().enabled = true;
-            
 
             var modifiedFollower = spawnedFollower.Follower.GetComponent<EnemyFollower>();
-            var prestigeBonus = GetPrestigeBonuses(spawnedFollower.FollowerBrain._directInfoAccess);
-            var classBonus = GetClassBonuses(spawnedFollower.FollowerBrain._directInfoAccess);
-            var commanderBonus = GetCommanderBonuses(spawnedFollower.FollowerBrain._directInfoAccess);
-            var necklaceBonus = GetNecklaceBonuses(spawnedFollower.FollowerBrain._directInfoAccess);
+            var prestigeBonus = Helpers.Bonuses.GetPrestigeBonuses(spawnedFollower.FollowerBrain._directInfoAccess);
+            var classBonus = Helpers.Bonuses.GetClassBonuses(spawnedFollower.FollowerBrain._directInfoAccess);
+            var commanderBonus = Helpers.Bonuses.GetCommanderBonuses(spawnedFollower.FollowerBrain._directInfoAccess);
+            var necklaceBonus = Helpers.Bonuses.GetNecklaceBonuses(spawnedFollower.FollowerBrain._directInfoAccess);
 
             //SCALING
             if (followerInfo == Plugin.commander) {
-                spawnedFollower.Follower.transform.DOScale(1f + commanderBonus[5], 0.25f).SetEase(Ease.OutBounce);
+                spawnedFollower.Follower.transform.DOScale(1f + commanderBonus.SizeBonus, 0.25f).SetEase(Ease.OutBounce);
             }
             
             // DAMAGE BALANCING TODO:check if commander TODO: Prestiges
-            modifiedFollower.Damage = 0.5f + prestigeBonus[0] + classBonus[0] + commanderBonus[0] + necklaceBonus[0];
+            modifiedFollower.Damage = 0.5f + prestigeBonus.AttackBonus + classBonus.AttackBonus + commanderBonus.AttackBonus + necklaceBonus.AttackBonus;
 
             // HEALTH BALANCING TODO:check if commander
             Health component = spawnedFollower.Follower.GetComponent<Health>();
-            component.totalHP = (3f + prestigeBonus[1] + classBonus[1] + commanderBonus[1]) * necklaceBonus[1];
+            component.totalHP = 3f + prestigeBonus.AttackBonus + classBonus.AttackBonus + commanderBonus.AttackBonus + necklaceBonus.AttackBonus;
             component.HP = component.totalHP;
 
             //set to ally
@@ -308,158 +306,5 @@ namespace SuperchargedFollowers.Patches
         public static void OnRoomCleared() {
             Plugin.Log.LogInfo("Room wascleared");
         }
-
-        public static List<float> GetClassBonuses(FollowerInfo followerInfo) {
-            float attackBonus = 0;
-            float healthBonus = 0;
-            float delayBonus = 0;
-            float movementSpeedBonus = 0;
-            float regenBonus = 0;
-            float blueHealthChance = 0;
-            float curseRegenBonus = 0;
-            float dropPrestigeChance = 0;
-            float critChance = 0;
-
-            foreach (InventoryItem inventoryItem in followerInfo.Inventory) {
-                if (inventoryItem.type == (int)Plugin.holiday) {
-                    delayBonus = 2f;
-                    attackBonus = -0.5f;
-                    break;
-                }
-                if (inventoryItem.type == (int)Plugin.warrior) {
-                    attackBonus = 1f;
-                    healthBonus = 2f;
-                    break;
-                }
-                if (inventoryItem.type == (int)Plugin.missionary) {
-                    healthBonus = 1f;
-                    movementSpeedBonus = 2f;
-                    break;
-                }
-                if (inventoryItem.type == (int)Plugin.undertaker) {
-                    regenBonus = 0.5f;
-                    break;
-                }
-            }
-            List<float> prestigeBonuses = [
-                attackBonus,
-                healthBonus,
-                delayBonus,
-                movementSpeedBonus,
-                regenBonus,
-                blueHealthChance,
-                curseRegenBonus,
-                dropPrestigeChance,
-                critChance
-            ];
-            
-            return prestigeBonuses;
-        }
-
-        public static List<float> GetNecklaceBonuses(FollowerInfo followerInfo) {
-            List<float> prestigeBonuses = [0, 0, 0, 0, 0, 0];
-            
-            switch (followerInfo.Necklace) {
-                case InventoryItem.ITEM_TYPE.Necklace_2: //add speed
-                    prestigeBonuses[3] = 1.5f;
-                    break;
-                case InventoryItem.ITEM_TYPE.Necklace_3: //add damage
-                    prestigeBonuses[0] = 2;
-                    break;
-                case InventoryItem.ITEM_TYPE.Necklace_4: //add health
-                    prestigeBonuses[1] = 3;
-                    break;
-                
-            }
-
-            return prestigeBonuses;
-        }
-        public static List<float> GetCommanderBonuses(FollowerInfo followerInfo) {
-            //bonuses are: attack, health, delay, movement speed, regen, scale
-            List<float> prestigeBonuses = [2, 5, 1, 1, 1.5f, 1];
-            if (Plugin.commander != followerInfo) {
-                prestigeBonuses = [0, 0, 0, 0, 0, 0];
-            }
-
-            return prestigeBonuses;
-        }
-
-        public static List<float> GetPrestigeBonuses(FollowerInfo followerInfo) {
-            float attackBonus = 0;
-            float healthBonus = 0;
-            float delayBonus = 0;
-            float movementSpeedBonus = 0;
-            float regenBonus = 0;
-            float blueHealthChance = 0;
-            float curseRegenBonus = 0;
-            float dropPrestigeChance = 0;
-            float critChance = 0;
-            float level = 0;
-
-            int prestigeTotal = followerInfo.Inventory.Count(x => x.type == (int)Plugin.prestige);
-
-            if (prestigeTotal >= 100) { //Level 10
-                critChance = 0.1f;
-                level = 10;
-            }
-            if (prestigeTotal >= 80) { //Level 9
-                dropPrestigeChance = 0.1f;
-                level = 9;
-            }
-            if (prestigeTotal >= 60) { //Level 8
-                curseRegenBonus = 1f;
-                level = 8;
-            }
-            if (prestigeTotal >= 40) { //Level 7
-                blueHealthChance = 0.2f;
-                level = 7;
-            }
-            if (prestigeTotal >= 20) { //Level 6
-                regenBonus = 0.5f;
-                level = 6;
-            }
-
-            if (prestigeTotal >= 15) { //Level 5
-                healthBonus += 0.5f;
-                delayBonus += 0.5f;
-                level = 5;
-            }
-            if (prestigeTotal >= 12) { //Level 4
-                healthBonus += 0.5f;
-                attackBonus += 0.5f;
-                level = 4;
-            }
-            if (prestigeTotal >= 9) { //Level 3
-                healthBonus += 1f;
-                movementSpeedBonus += 0.25f;
-                level = 3;
-            }
-            if (prestigeTotal >= 6) { //Level 2
-                healthBonus += 0.5f;
-                attackBonus += 0.25f;
-                level = 2;
-            }
-            if (prestigeTotal >= 3) { //Level 1
-                healthBonus += 0.5f;
-                attackBonus += 0.5f;
-                level = 1;
-            }
-            
-            List<float> prestigeBonuses = [
-                attackBonus,
-                healthBonus,
-                delayBonus,
-                movementSpeedBonus,
-                regenBonus,
-                blueHealthChance,
-                curseRegenBonus,
-                dropPrestigeChance,
-                critChance,
-                level
-            ];
-
-            return prestigeBonuses;
-        }
     }
-
 }

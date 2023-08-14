@@ -107,7 +107,7 @@ public class Interaction_Rally : Interaction
             }
         }
 
-         followerSelectMenu.Show(DataManager.Instance.Followers, blackList, false, UpgradeSystem.Type.Count, true, true, true);
+        followerSelectMenu.Show(DataManager.Instance.Followers, blackList, false, UpgradeSystem.Type.Count, true, true, true);
 
         followerSelectMenu.OnFollowerSelected += new System.Action<FollowerInfo>(this.OnCommanderChosen);
         followerSelectMenu.OnShown += new System.Action(() =>
@@ -115,10 +115,10 @@ public class Interaction_Rally : Interaction
             foreach (FollowerInformationBox fib in followerSelectMenu._followerInfoBoxes)
             {
                 if (Plugin.commander == fib._followerInfo) {
-                    fib.FollowerRole.text = "Current Commander |  Health: " + (150 + fib._followerInfo.FollowerLevel * 40)  + " | Attack: " + (fib._followerInfo.FollowerLevel * 4);
+                    fib.FollowerRole.text = "Current Commander | Base Health: " + (1 + 3)  + " | Attack: " + (1 + 2);
                 }
                 else {
-                    fib.FollowerRole.text = "Select As Commander | Health: " + (150 + fib._followerInfo.FollowerLevel * 40) + " | Attack: " + (fib._followerInfo.FollowerLevel * 4);
+                    fib.FollowerRole.text = "Select As Commander | Base Health: " + (1 + 3) + " | Attack: " + (1 + 2);
                 }
             }
         });
