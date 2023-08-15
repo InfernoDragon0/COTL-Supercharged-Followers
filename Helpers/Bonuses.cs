@@ -123,9 +123,9 @@ public class Bonuses
 
     public static int PrestigeToNextLevel(FollowerInfo followerInfo) {
         int prestigeTotal = followerInfo.Inventory.Count(x => x.type == (int)Plugin.prestige);
-        List<int> prestigeValues = [
+        List<int> prestigeValues = new List<int>(){
             3, 6, 9, 12, 15, 20, 40, 60, 80, 100
-        ];
+        };
         int nextLevel = prestigeValues.FirstOrDefault(x => x > prestigeTotal);
         return nextLevel - prestigeTotal;
     }

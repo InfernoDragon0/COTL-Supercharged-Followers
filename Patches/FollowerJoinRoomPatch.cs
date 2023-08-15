@@ -91,7 +91,7 @@ namespace SuperchargedFollowers.Patches
 
         [HarmonyPatch(typeof(Door), nameof(Door.OnTriggerEnter2D))] //*** THIS IS TEMPORARY, change to Health.DealDamage
         [HarmonyPrefix]
-        public static bool Door_OnTriggerEnterEvent(Door __instance, Collider2D collider)
+        public static bool Door_OnTriggerEnter2D(Door __instance)
         {
             //check the roomtype
             Plugin.Log.LogInfo(__instance.ConnectionType);

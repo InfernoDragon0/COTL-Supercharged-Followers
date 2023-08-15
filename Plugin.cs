@@ -29,7 +29,7 @@ namespace SuperchargedFollowers
         internal static ConfigEntry<float> ammoConfig;
 
         //Summoning list for Rally Banner
-        public static List<FollowerInfo> summonList;
+        public static List<FollowerInfo> summonList = new();
         public static FollowerInfo commander;
 
         public static bool summoned = false;
@@ -70,13 +70,14 @@ namespace SuperchargedFollowers
 
             prestige = CustomItemManager.Add(new Prestige());
 
-            allJobs = [
+            allJobs = new List<int>(){
                 (int)holiday,
                 (int)prayer,
                 (int)missionary,
                 (int)warrior,
                 (int)undertaker
-            ];
+            };
+                
 
             //ADD: STRUCTURES
             rally = CustomStructureManager.Add(new RallyStructure());
