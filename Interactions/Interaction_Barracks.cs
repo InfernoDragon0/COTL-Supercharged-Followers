@@ -152,7 +152,8 @@ public class Interaction_Barracks : Interaction
             foreach (FollowerInformationBox fib in followerSelectMenu._followerInfoBoxes)
             {
                 var prestige = Helpers.Bonuses.GetPrestigeBonuses(fib.FollowerInfo);
-                fib.FollowerRole.text = "Warrior | Prestige " + prestige.Level + " |  Health: " + (0.5 + fib._followerInfo.FollowerLevel * 1)  + " | Attack: " + (fib._followerInfo.FollowerLevel * 0.5);
+                var classBonus = Helpers.Bonuses.GetClassBonuses(fib.FollowerInfo);
+                fib.FollowerRole.text = classBonus.ClassName + " | Prestige " + prestige.Level + " |  Health: " + (0.5 + fib._followerInfo.FollowerLevel * 1)  + " | Attack: " + (fib._followerInfo.FollowerLevel * 0.5);
             }
         });
         followerSelectMenu.OnHidden += () =>
@@ -185,9 +186,8 @@ public class Interaction_Barracks : Interaction
 
         foreach (FollowerInfo follower in DataManager.Instance.Followers)
         {
-            if (!Plugin.summonList.Contains(follower)) {
+            if (follower.CursedState == Thought.OldAge)
                 blackList.Add(follower);
-            }
         }
 
         followerSelectMenu.Show(DataManager.Instance.Followers, blackList, false, UpgradeSystem.Type.Count, true, true, true);

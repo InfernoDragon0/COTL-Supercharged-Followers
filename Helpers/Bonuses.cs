@@ -12,20 +12,28 @@ public class Bonuses
             if (inventoryItem.type == (int)Plugin.holiday) {
                 buffStats.DelayBonus = 2f;
                 buffStats.AttackBonus = -0.5f;
+                buffStats.ClassName = "Holiday";
                 break;
             }
             if (inventoryItem.type == (int)Plugin.warrior) {
                 buffStats.AttackBonus = 1f;
                 buffStats.HealthBonus = 2f;
+                buffStats.ClassName = "Warrior";
                 break;
             }
             if (inventoryItem.type == (int)Plugin.missionary) {
                 buffStats.HealthBonus = 1f;
                 buffStats.MovementSpeedBonus = 2f;
+                buffStats.ClassName = "Missionary";
                 break;
             }
             if (inventoryItem.type == (int)Plugin.undertaker) {
                 buffStats.RegenBonus = 0.5f;
+                buffStats.ClassName = "Undertaker";
+                break;
+            }
+            if (inventoryItem.type == (int)Plugin.prayer) {
+                buffStats.ClassName = "Prayer";
                 break;
             }
         }
@@ -39,7 +47,7 @@ public class Bonuses
 
         switch (followerInfo.Necklace) {
             case InventoryItem.ITEM_TYPE.Necklace_2: //add speed
-                buffStats.MovementSpeedBonus = 1.5f;
+                buffStats.MovementSpeedBonus = 0.02f;
                 break;
             case InventoryItem.ITEM_TYPE.Necklace_3: //add damage
                 buffStats.AttackBonus = 2;
@@ -55,10 +63,10 @@ public class Bonuses
         BuffStats buffStats = new();
 
         if (Plugin.commander == followerInfo) {
-            buffStats.AttackBonus = 2;
-            buffStats.HealthBonus = 5;
+            buffStats.AttackBonus = 3;
+            buffStats.HealthBonus = 10;
             buffStats.DelayBonus = 1;
-            buffStats.MovementSpeedBonus = 1;
+            buffStats.MovementSpeedBonus = 0.09f;
             buffStats.RegenBonus = 1.5f;
             buffStats.SizeBonus = 1;
         }
@@ -104,7 +112,7 @@ public class Bonuses
         }
         if (prestigeTotal >= 9) { //Level 3
             buffStats.HealthBonus += 1f;
-            buffStats.MovementSpeedBonus += 0.25f;
+            buffStats.MovementSpeedBonus += 0.03f;
             buffStats.Level = 3;
         }
         if (prestigeTotal >= 6) { //Level 2

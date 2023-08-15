@@ -36,6 +36,7 @@ public class Interaction_Rally : Interaction
 
     public override void OnInteract(StateMachine state)
     {
+        Plugin.summoned = false;
         if (this.Activating) return;
         base.OnInteract(state);
         this.Activating = true;

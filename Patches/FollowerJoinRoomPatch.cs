@@ -16,7 +16,7 @@ namespace SuperchargedFollowers.Patches
             spawnedFollower.Follower.State.CURRENT_STATE = StateMachine.State.CustomAnimation;
             spawnedFollower.Follower.Spine.AnimationState.SetAnimation(1, "spawn-in", false);
             spawnedFollower.Follower.Spine.AnimationState.AddAnimation(1, "Reactions/react-worried1", true, 0.0f);
-            spawnedFollower.Follower.Spine.AnimationState.AddAnimation(1, "Conversations/idle-hate", true, 0.0f);
+            // spawnedFollower.Follower.Spine.AnimationState.AddAnimation(1, "Conversations/idle-hate", true, 0.0f);
             spawnedFollower.Follower.GetComponent<EnemyFollower>().enabled = true;
 
             var modifiedFollower = spawnedFollower.Follower.GetComponent<EnemyFollower>();
@@ -33,17 +33,18 @@ namespace SuperchargedFollowers.Patches
             // DAMAGE BALANCING TODO:check if commander TODO: Prestiges
             modifiedFollower.Damage = 0.5f + prestigeBonus.AttackBonus + classBonus.AttackBonus + commanderBonus.AttackBonus + necklaceBonus.AttackBonus;
 
+            modifiedFollower.speed = 0.08f + prestigeBonus.MovementSpeedBonus + classBonus.MovementSpeedBonus + commanderBonus.MovementSpeedBonus + necklaceBonus.MovementSpeedBonus;
+            modifiedFollower.maxSpeed = 0.08f + prestigeBonus.MovementSpeedBonus + classBonus.MovementSpeedBonus + commanderBonus.MovementSpeedBonus + necklaceBonus.MovementSpeedBonus;
             // HEALTH BALANCING TODO:check if commander
             Health component = spawnedFollower.Follower.GetComponent<Health>();
-            component.totalHP = 3f + prestigeBonus.AttackBonus + classBonus.AttackBonus + commanderBonus.AttackBonus + necklaceBonus.AttackBonus;
+            component.totalHP = 10f + prestigeBonus.HealthBonus + classBonus.HealthBonus + commanderBonus.HealthBonus + necklaceBonus.HealthBonus;
             component.HP = component.totalHP;
+
+            Plugin.tempSummoned.Add(spawnedFollower.Follower);
 
             //set to ally
             component.team = Health.Team.PlayerTeam;
             component.isPlayerAlly = true;
-            Plugin.Log.LogInfo("ally was " + component.isPlayerAlly);
-            Plugin.Log.LogInfo("hp was " + component._totalHP + " and _hp is " + component._HP + " and " + component.HP);
-
             return spawnedFollower;
         }
 
@@ -236,6 +237,7 @@ namespace SuperchargedFollowers.Patches
                 if (follower.TargetObject == null || follower.TargetObject.GetComponent<Health>().team == Health.Team.PlayerTeam)
                 {
                     Plugin.Log.LogInfo("was null, so find new target");
+                    yield return new WaitForSeconds(0.35f);
                     if (follower.GetClosestTarget() != null)
                     {
                         follower.TargetObject = follower.GetClosestTarget().gameObject;
@@ -262,8 +264,8 @@ namespace SuperchargedFollowers.Patches
                 {
                     Plugin.Log.LogInfo("wait and taunting");
 
-                    if (follower.Spine.AnimationName != "roll-stop" && follower.state.CURRENT_STATE == StateMachine.State.Moving && follower.Spine.AnimationName != "run-enemy")
-                        follower.Spine.AnimationState.SetAnimation(1, "run-enemy", true);
+                    if (follower.Spine.AnimationName != "roll-stop" && follower.state.CURRENT_STATE == StateMachine.State.Moving && follower.Spine.AnimationName != "run")
+                        follower.Spine.AnimationState.SetAnimation(1, "run", true);
 
                     follower.state.LookAngle = Utils.GetAngle(follower.transform.position, follower.TargetObject.transform.position);
                     follower.Spine.skeleton.ScaleX = (double)follower.state.LookAngle <= 90.0 || (double)follower.state.LookAngle >= 270.0 ? -1f : 1f;
@@ -279,7 +281,7 @@ namespace SuperchargedFollowers.Patches
                                 Plugin.Log.LogInfo("Attacking now");
                                 follower.health.invincible = false;
                                 follower.StopAllCoroutines();
-                                yield return follower.StartCoroutine(follower.FightPlayer());
+                                yield return follower.StartCoroutine(FightPlayer(follower, 1.5f));
                                 Plugin.Log.LogInfo("Attacking complete");
                                 /*Loop = false; //todo: if false?*/
                             }
@@ -305,6 +307,156 @@ namespace SuperchargedFollowers.Patches
 
         public static void OnRoomCleared() {
             Plugin.Log.LogInfo("Room wascleared");
+            Plugin.Log.LogInfo("is this the boss room: " + BiomeGenerator.Instance.CurrentRoom.IsBoss);
+
+            foreach (Follower followerInfo in Plugin.tempSummoned) {
+                Plugin.Log.LogInfo(followerInfo.Health.HP + " over " + followerInfo.Health.totalHP);
+                if (followerInfo.Health.HP > 0) {
+                }
+                else {
+                }
+            }
+
+            // if (toResummon.Count > 0 && !BiomeGenerator.Instance.CurrentRoom.IsBoss) {
+            //     Plugin.Log.LogInfo("Resummon all followers");
+            //     Plugin.tempSummoned.RemoveAll(a => toResummon.Contains(a));
+            //     SpawnAllyFollower(Plugin.commander, PlayerFarming.Instance.transform.position);
+            // }
+
+            if (BiomeGenerator.Instance.CurrentRoom.IsBoss) { //for each alive, give 1 prestige, max of 12
+                Plugin.Log.LogInfo("Boss completed, give reward");
+                int alive = 0;
+
+                foreach (Follower followerInfo in Plugin.tempSummoned) {
+                    if (followerInfo.Health.HP > 0) {
+                        alive++;
+                    }
+                }
+                //log total alive
+                Plugin.Log.LogInfo("Total alive: " + alive);
+                Inventory.AddItem(Plugin.prestige, Math.Min(alive, 12));
+
+            }
+        }
+
+        public static IEnumerator<object> FightPlayer(EnemyFollower enemyFollower, float attackDistance = 1.5f) {
+            enemyFollower.MyState = EnemyFollower.State.Attacking;
+            enemyFollower.UsePathing = true;
+            enemyFollower.givePath(enemyFollower.TargetObject.transform.position);
+            enemyFollower.Spine.AnimationState.SetAnimation(1, "run", true);
+            enemyFollower.RepathTimer = 0.0f;
+            int NumAttacks = enemyFollower.DoubleAttack ? 2 : 1;
+            int AttackCount = 1;
+            float MaxAttackSpeed = 15f;
+            float AttackSpeed = MaxAttackSpeed;
+            bool Loop = true;
+            float SignPostDelay = 0.5f;
+            while (Loop)
+            {
+            enemyFollower.Seperate(0.5f);
+            if (enemyFollower.TargetObject == null)
+            {
+                yield return new WaitForSeconds(0.3f);
+                enemyFollower.StartCoroutine(enemyFollower.WaitForTarget());
+                yield break;
+            }
+            else
+            {
+                if (enemyFollower.state.CURRENT_STATE == StateMachine.State.Idle)
+                enemyFollower.state.CURRENT_STATE = StateMachine.State.Moving;
+                switch (enemyFollower.state.CURRENT_STATE)
+                {
+                case StateMachine.State.Moving:
+                    enemyFollower.state.LookAngle = Utils.GetAngle(enemyFollower.transform.position, enemyFollower.TargetObject.transform.position);
+                    enemyFollower.Spine.skeleton.ScaleX = (double) enemyFollower.state.LookAngle <= 90.0 || (double) enemyFollower.state.LookAngle >= 270.0 ? -1f : 1f;
+                    enemyFollower.state.LookAngle = enemyFollower.state.facingAngle = Utils.GetAngle(enemyFollower.transform.position, enemyFollower.TargetObject.transform.position);
+                    if ((double) Vector2.Distance((Vector2) enemyFollower.transform.position, (Vector2) enemyFollower.TargetObject.transform.position) < (double) attackDistance)
+                    {
+                    enemyFollower.state.CURRENT_STATE = StateMachine.State.SignPostAttack;
+                    enemyFollower.variant = UnityEngine.Random.Range(0, 2);
+                    string animationName = enemyFollower.variant == 0 ? "attack-charge" : "attack-charge2";
+                    enemyFollower.Spine.AnimationState.SetAnimation(1, animationName, false);
+                    }
+                    else
+                    {
+                    if ((double) (enemyFollower.RepathTimer += Time.deltaTime) > 0.20000000298023224)
+                    {
+                        enemyFollower.RepathTimer = 0.0f;
+                        enemyFollower.givePath(enemyFollower.TargetObject.transform.position);
+                    }
+                    if ((UnityEngine.Object) enemyFollower.damageColliderEvents != (UnityEngine.Object) null)
+                    {
+                        if ((double) enemyFollower.state.Timer < 0.20000000298023224 && !enemyFollower.health.WasJustParried)
+                        enemyFollower.damageColliderEvents.SetActive(true);
+                        else
+                        enemyFollower.damageColliderEvents.SetActive(false);
+                    }
+                    }
+                    if ((UnityEngine.Object) enemyFollower.damageColliderEvents != (UnityEngine.Object) null)
+                    {
+                    enemyFollower.damageColliderEvents.SetActive(false);
+                    break;
+                    }
+                    break;
+                case StateMachine.State.SignPostAttack:
+                    if ((UnityEngine.Object) enemyFollower.damageColliderEvents != (UnityEngine.Object) null)
+                    enemyFollower.damageColliderEvents.SetActive(false);
+                    enemyFollower.SimpleSpineFlash.FlashWhite(enemyFollower.state.Timer / SignPostDelay);
+                    enemyFollower.state.Timer += Time.deltaTime;
+                    if ((double) enemyFollower.state.Timer >= (double) SignPostDelay - (double) EnemyFollower.signPostParryWindow)
+                    enemyFollower.canBeParried = true;
+                    if (enemyFollower.health.team == Health.Team.PlayerTeam && (UnityEngine.Object) enemyFollower.TargetObject != (UnityEngine.Object) null)
+                    {
+                    enemyFollower.state.LookAngle = Utils.GetAngle(enemyFollower.transform.position, enemyFollower.TargetObject.transform.position);
+                    enemyFollower.Spine.skeleton.ScaleX = (double) enemyFollower.state.LookAngle <= 90.0 || (double) enemyFollower.state.LookAngle >= 270.0 ? -1f : 1f;
+                    enemyFollower.state.LookAngle = enemyFollower.state.facingAngle = Utils.GetAngle(enemyFollower.transform.position, enemyFollower.TargetObject.transform.position);
+                    }
+                    if ((double) enemyFollower.state.Timer >= (double) SignPostDelay)
+                    {
+                    enemyFollower.SimpleSpineFlash.FlashWhite(false);
+                    CameraManager.shakeCamera(0.4f, enemyFollower.state.LookAngle);
+                    enemyFollower.state.CURRENT_STATE = StateMachine.State.RecoverFromAttack;
+                    // enemyFollower.speed = AttackSpeed * 0.0166666675f;
+                    string animationName = enemyFollower.variant == 0 ? "attack-impact" : "attack-impact2";
+                    enemyFollower.Spine.AnimationState.SetAnimation(1, animationName, false);
+                    enemyFollower.canBeParried = true;
+                    enemyFollower.StartCoroutine(enemyFollower.EnableDamageCollider(0.0f));
+                    if (!string.IsNullOrEmpty(enemyFollower.attackSoundPath))
+                    {
+                        AudioManager.Instance.PlayOneShot(enemyFollower.attackSoundPath, enemyFollower.transform.position);
+                        break;
+                    }
+                    break;
+                    }
+                    break;
+                case StateMachine.State.RecoverFromAttack:
+                    if ((double) AttackSpeed > 0.0)
+                    AttackSpeed -= 1f * GameManager.DeltaTime;
+                    // enemyFollower.speed = AttackSpeed * Time.deltaTime;
+                    enemyFollower.SimpleSpineFlash.FlashWhite(false);
+                    enemyFollower.canBeParried = (double) enemyFollower.state.Timer <= (double) EnemyFollower.attackParryWindow;
+                    if ((double) (enemyFollower.state.Timer += Time.deltaTime) >= (AttackCount + 1 <= NumAttacks ? 0.5 : 1.0))
+                    {
+                    if (++AttackCount <= NumAttacks)
+                    {
+                        AttackSpeed = MaxAttackSpeed + (float) ((3 - NumAttacks) * 2);
+                        enemyFollower.state.CURRENT_STATE = StateMachine.State.SignPostAttack;
+                        enemyFollower.variant = UnityEngine.Random.Range(0, 2);
+                        string animationName = "attack-charge";
+                        enemyFollower.Spine.AnimationState.SetAnimation(1, animationName, false);
+                        SignPostDelay = 0.3f;
+                        break;
+                    }
+                    Loop = false;
+                    enemyFollower.SimpleSpineFlash.FlashWhite(false);
+                    break;
+                    }
+                    break;
+                }
+                yield return (object) null;
+            }
+            }
+            enemyFollower.StartCoroutine(enemyFollower.ChasePlayer());
         }
     }
 }

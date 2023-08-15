@@ -12,4 +12,6 @@ public class BuffStats
     public float CritChance { get; set; }
     public float Level { get; set; }
     public float SizeBonus { get; set; }
+
+    public string ClassName { get; set; }
 }

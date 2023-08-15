@@ -35,7 +35,7 @@ namespace SuperchargedFollowers
         public static bool summoned = false;
 
         //Temp List to store summoned follower to track alive or dead
-        public static List<EnemyFollower> tempSummoned;
+        public static List<Follower> tempSummoned = new();
 
         //ITEMS
         public static InventoryItem.ITEM_TYPE holiday;
