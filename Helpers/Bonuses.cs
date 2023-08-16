@@ -46,14 +46,20 @@ public class Bonuses
         BuffStats buffStats = new();
 
         switch (followerInfo.Necklace) {
+            case InventoryItem.ITEM_TYPE.Necklace_1: //add atk spdd
+                buffStats.DelayBonus = 0.5f;
+                break;
             case InventoryItem.ITEM_TYPE.Necklace_2: //add speed
                 buffStats.MovementSpeedBonus = 0.02f;
                 break;
             case InventoryItem.ITEM_TYPE.Necklace_3: //add damage
-                buffStats.AttackBonus = 2;
+                buffStats.AttackBonus = 1;
                 break;
             case InventoryItem.ITEM_TYPE.Necklace_4: //add health
-                buffStats.HealthBonus = 3;
+                buffStats.HealthBonus = 2;
+                break;
+            case InventoryItem.ITEM_TYPE.Necklace_5: //add regen
+                buffStats.RegenBonus = 0.25f;
                 break;
         }
 

@@ -309,19 +309,27 @@ namespace SuperchargedFollowers.Patches
             Plugin.Log.LogInfo("Room wascleared");
             Plugin.Log.LogInfo("is this the boss room: " + BiomeGenerator.Instance.CurrentRoom.IsBoss);
 
+            List<Follower> toResummon = new();
             foreach (Follower followerInfo in Plugin.tempSummoned) {
                 Plugin.Log.LogInfo(followerInfo.Health.HP + " over " + followerInfo.Health.totalHP);
-                if (followerInfo.Health.HP > 0) {
+                if (followerInfo.Health.HP <= 0) {
+                    //if wearing goldenskull
+                    Plugin.Log.LogInfo("currently wearing " + followerInfo.Brain.Info.Necklace);
+                    if (followerInfo.Brain.Info.Necklace == InventoryItem.ITEM_TYPE.Necklace_Gold_Skull) {
+                        Plugin.Log.LogInfo("Golden Skull found, revive");
+                        toResummon.AddItem(followerInfo);
+                    }
                 }
-                else {
-                }
+                
             }
 
-            // if (toResummon.Count > 0 && !BiomeGenerator.Instance.CurrentRoom.IsBoss) {
-            //     Plugin.Log.LogInfo("Resummon all followers");
-            //     Plugin.tempSummoned.RemoveAll(a => toResummon.Contains(a));
-            //     SpawnAllyFollower(Plugin.commander, PlayerFarming.Instance.transform.position);
-            // }
+            if (toResummon != null && !BiomeGenerator.Instance.CurrentRoom.IsBoss) {
+                Plugin.Log.LogInfo("Resummon all necklace followers");
+                Plugin.tempSummoned.RemoveAll(toResummon.Contains);
+                foreach (Follower follower in toResummon) {
+                    SpawnAllyFollower(follower.Brain._directInfoAccess, PlayerFarming.Instance.transform.position);
+                }
+            }
 
             if (BiomeGenerator.Instance.CurrentRoom.IsBoss) { //for each alive, give 1 prestige, max of 12
                 Plugin.Log.LogInfo("Boss completed, give reward");

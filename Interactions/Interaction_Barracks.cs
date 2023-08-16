@@ -85,7 +85,7 @@ public class Interaction_Barracks : Interaction
             mb4.Configure(mic._followerInfo);
             mb5.Configure(mic._followerInfo);
 
-            mb._titleText.text = "Warrior: <sprite name=\"icon_GoodTrait\"> " + "Attack Damage, <sprite name=\"icon_BadTrait\"> Attack Speed";
+            mb._titleText.text = "Warrior: <sprite name=\"icon_GoodTrait\"><sprite name=\"icon_GoodTrait\"> " + " ATK, <sprite name=\"icon_GoodTrait\"> HP";
             mb._amountText.text = "1";
             mb._type = Plugin.warrior;
             // mb._icon = Plugin.warrior;
@@ -97,7 +97,7 @@ public class Interaction_Barracks : Interaction
             Plugin.Log.LogInfo("on chosen 7");
             
             //prayer
-            mb2._titleText.text = "Prayer: Bonus Health and slightly slower Attack Speed";
+            mb2._titleText.text = "Prayer: +10% Lamb Curse Damage";
             mb2._amountText.text = "1";
             mb2._type = Plugin.prayer;
             // mb2._icon = Plugin.prayer;
@@ -108,7 +108,7 @@ public class Interaction_Barracks : Interaction
             mb2.Start();
 
             //holiday
-            mb3._titleText.text = "Holiday: Bonus Health and slightly slower Attack Speed";
+            mb3._titleText.text = "Holiday: <sprite name=\"icon_GoodTrait\"> " + " ASPD, <sprite name=\"icon_BadTrait\"> ATK";
             mb3._amountText.text = "1";
             mb3._type = Plugin.holiday;
             // mb3._icon = Plugin.holiday;
@@ -119,7 +119,7 @@ public class Interaction_Barracks : Interaction
             mb3.Start();
 
             //missionary
-            mb4._titleText.text = "Missionary: Bonus Health and slightly slower Attack Speed";
+            mb4._titleText.text = "Missionary: <sprite name=\"icon_GoodTrait\"> " + " SPD, <sprite name=\"icon_GoodTrait\"> ATK";
             mb4._amountText.text = "1";
             mb4._type = Plugin.missionary;
             // mb4._icon = Plugin.missionary;
@@ -130,7 +130,7 @@ public class Interaction_Barracks : Interaction
             mb4.Start();
 
             //undertaker
-            mb5._titleText.text = "Undertaker: Bonus Health and slightly slower Attack Speed";
+            mb5._titleText.text = "Undertaker: <sprite name=\"icon_GoodTrait\"> HP Regen";
             mb5._amountText.text = "1";
             mb5._type = Plugin.undertaker;
             // mb5._icon = Plugin.undertaker;
@@ -199,7 +199,7 @@ public class Interaction_Barracks : Interaction
             {
                 var prestige = Helpers.Bonuses.GetPrestigeBonuses(fib.FollowerInfo);
                 var nextLevel = Helpers.Bonuses.PrestigeToNextLevel(fib.FollowerInfo);
-                fib.FollowerRole.text = "Prestige " + prestige.Level + "| " + nextLevel + " More to next Prestige | Bonuses: " + prestige.HealthBonus + "HP, " + prestige.AttackBonus + "ATK, " + prestige.MovementSpeedBonus + "MOV, "
+                fib.FollowerRole.text = "Prestige " + prestige.Level + "| " + nextLevel + " to next Prestige | Bonuses: " + prestige.HealthBonus + "HP, " + prestige.AttackBonus + "ATK, " + prestige.MovementSpeedBonus + "MOV, "
                     + prestige.DelayBonus + "SPD";
             }
         });
