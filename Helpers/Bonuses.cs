@@ -10,20 +10,19 @@ public class Bonuses
 
         foreach (InventoryItem inventoryItem in followerInfo.Inventory) {
             if (inventoryItem.type == (int)Plugin.holiday) {
-                buffStats.DelayBonus = 2f;
-                buffStats.AttackBonus = -0.5f;
+                buffStats.HealthBonus = 4f;
                 buffStats.ClassName = "Holiday";
                 break;
             }
             if (inventoryItem.type == (int)Plugin.warrior) {
-                buffStats.AttackBonus = 1f;
+                buffStats.AttackBonus = 2f;
                 buffStats.HealthBonus = 2f;
                 buffStats.ClassName = "Warrior";
                 break;
             }
             if (inventoryItem.type == (int)Plugin.missionary) {
                 buffStats.HealthBonus = 1f;
-                buffStats.MovementSpeedBonus = 2f;
+                buffStats.MovementSpeedBonus = 0.02f;
                 buffStats.ClassName = "Missionary";
                 break;
             }
@@ -33,6 +32,7 @@ public class Bonuses
                 break;
             }
             if (inventoryItem.type == (int)Plugin.prayer) {
+                buffStats.AttackBonus = 4f;
                 buffStats.ClassName = "Prayer";
                 break;
             }
@@ -56,7 +56,7 @@ public class Bonuses
                 buffStats.AttackBonus = 1;
                 break;
             case InventoryItem.ITEM_TYPE.Necklace_4: //add health
-                buffStats.HealthBonus = 2;
+                buffStats.HealthBonus = 1;
                 break;
             case InventoryItem.ITEM_TYPE.Necklace_5: //add regen
                 buffStats.RegenBonus = 0.25f;
