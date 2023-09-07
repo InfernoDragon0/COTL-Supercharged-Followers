@@ -228,6 +228,12 @@ public class Interaction_Barracks : Interaction
  
         //add prestige until next level
         int toNextLevel = Helpers.Bonuses.PrestigeToNextLevel(followerInfo);
+        if (toNextLevel <= 0) {
+            NotificationCentreScreen.Play("Follower is already at max level!");
+            this.OnHidden();
+
+            return;
+        }
         //check if inventory has enough
         int quantity = Inventory.GetItemQuantity(Plugin.prestige);
         if (quantity >= toNextLevel) {

@@ -158,6 +158,14 @@ namespace SuperchargedFollowers.Patches
                         toResummon.AddItem(followerInfo);
                     }
                 }
+                else {
+                    //get follower regen bonus
+                    var necklaceBonus = Helpers.Bonuses.GetNecklaceBonuses(followerInfo.Brain._directInfoAccess);
+                    var commanderBonus = Helpers.Bonuses.GetCommanderBonuses(followerInfo.Brain._directInfoAccess);
+                    var classBonus = Helpers.Bonuses.GetClassBonuses(followerInfo.Brain._directInfoAccess);
+                    followerInfo.Health.HP += necklaceBonus.RegenBonus + commanderBonus.RegenBonus + classBonus.RegenBonus;
+                    Plugin.Log.LogInfo("Regenerated " + followerInfo.Brain._directInfoAccess.Name + " to " + followerInfo.Health.HP + " HP");
+                }
                 
             }
 
