@@ -14,6 +14,16 @@ namespace SuperchargedFollowers.Patches
         private static FollowerManager.SpawnedFollower SpawnAllyFollower(FollowerInfo followerInfo, Vector3 position)
         {
             FollowerManager.SpawnedFollower spawnedFollower = FollowerManager.SpawnCopyFollower(FollowerManager.CombatFollowerPrefab, followerInfo, position, PlayerFarming.Instance.transform.parent, BiomeGenerator.Instance.DungeonLocation);
+            
+            //DO TRANSPARENCY
+            Plugin.Log.LogInfo("doing transparency");
+            Renderer renderer = spawnedFollower.Follower.GetComponentInChildren<Renderer>();
+            Color color = renderer.material.color;
+            color.a = Plugin.followerTransparency.Value;
+            renderer.material.color = color;
+            Plugin.Log.LogInfo("done transparency");
+
+
             spawnedFollower.Follower.State.CURRENT_STATE = StateMachine.State.CustomAnimation;
             spawnedFollower.Follower.Spine.AnimationState.SetAnimation(1, "spawn-in", false);
             spawnedFollower.Follower.Spine.AnimationState.AddAnimation(1, "Reactions/react-worried1", true, 0.0f);

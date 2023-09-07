@@ -26,7 +26,8 @@ namespace SuperchargedFollowers
         internal static string PluginPath;
 
         //Config for Tarots
-        internal static ConfigEntry<float> ammoConfig;
+        internal static ConfigEntry<float> followerTransparency;
+        internal static ConfigEntry<bool> shouldCommanderTransparent;
 
         //Summoning list for Rally Banner
         public static List<FollowerInfo> summonList = new();
@@ -59,6 +60,8 @@ namespace SuperchargedFollowers
             PluginPath = Path.GetDirectoryName(Info.Location);
 
             //SETUP: Config
+            followerTransparency = Config.Bind("SuperchargedFollowers", "Follower Transparency", 0.85f, "Transparency of the followers, from 0 to 1");
+            shouldCommanderTransparent = Config.Bind("SuperchargedFollowers", "Commander Transparency", true, "Should the commander be transparent?");
             /*ammoConfig = Config.Bind("SuperchargedTarots", "Ammo", 66f, "Fervor Use Discount (higher the lesser, but dont go over 100)");*/
 
             //ADD: ITEMS
