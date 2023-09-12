@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using MMBiomeGeneration;
 using UnityEngine;
 
 namespace SuperchargedFollowers.Helpers;
@@ -14,9 +15,29 @@ public class FollowerRoutines : MonoBehaviour
         Plugin.Log.LogInfo("follower is " + follower);
     }
 
+    public Health GetRandomEnemy() {
+        Plugin.Log.LogInfo("Attempting to find random enemy");
+        List<Health> enemies = Health.team2;
+        int maxAttempts = 10;
+        int attempts = 0;
+        if (enemies.Count > 0) {
+            int random = UnityEngine.Random.Range(0, enemies.Count);
+            while (enemies[random].HP <= 0 && attempts < maxAttempts) {
+                Plugin.Log.LogInfo("Attempting to find random enemy again as targeted a dead enemy");
+                random = UnityEngine.Random.Range(0, enemies.Count);
+                attempts++;
+            }
+            return enemies[random];
+        }
+        else {
+            //target player if no mor enemy
+            Plugin.Log.LogInfo("Returning player");
+            return PlayerFarming.Instance.health ?? null;
+        }
+    }
+
     public IEnumerator<object> WaitForEnemy()
     {
-        Plugin.Log.LogInfo("got wait for enemy follower is " + follower);
         follower.Spine.Initialize(false);
         follower.state.CURRENT_STATE = StateMachine.State.Idle;
         follower.Spine.AnimationState.SetAnimation(0, "Conversations/idle-nice", true);
@@ -27,51 +48,64 @@ public class FollowerRoutines : MonoBehaviour
             yield return null;
         }
 
-        Plugin.Log.LogInfo("checkif target null");
+        while (BiomeGenerator.Instance.CurrentRoom.Completed) {
+            Plugin.Log.LogInfo("Room is cleared, waiting for next room");
+            yield return new WaitForSeconds(1f);
+        }
 
         while (follower.TargetObject == null)
         {
             Plugin.Log.LogInfo("target null, get closest target");
 
-            var nextTarget = follower.GetClosestTarget(true);
-            Plugin.Log.LogInfo("target found of " + nextTarget);
-            if (nextTarget != null)
-            {
-                follower.TargetObject = nextTarget.gameObject;
-                Plugin.Log.LogInfo("target found of " + nextTarget.team);
-            }
-            else
-            {
-                Plugin.Log.LogInfo("pathing to player");
-                try
+            try {
+                var nextTarget = this.GetRandomEnemy();
+                if (nextTarget != null)
                 {
-                    follower.givePath(PlayerFarming.Instance.transform.position + (Vector3)UnityEngine.Random.insideUnitCircle * 2f);
-                    follower.followerTimestamp = Time.time + 0.25f;
+                    Plugin.Log.LogInfo("target found of " + nextTarget);
+                    follower.TargetObject = nextTarget.gameObject;
                 }
-                catch (Exception e)
+                else
                 {
-                    Plugin.Log.LogInfo("error pathing to player, try again later: " + e.Message);
+                    Plugin.Log.LogInfo("pathing to player");
+                    try
+                    {
+                        follower.givePath(PlayerFarming.Instance.transform.position + (Vector3)UnityEngine.Random.insideUnitCircle * 2f);
+                        follower.followerTimestamp = Time.time + 0.25f;
+                    }
+                    catch (Exception e)
+                    {
+                        Plugin.Log.LogInfo("error pathing to player, try again later: " + e.Message);
+                    }
                 }
-
-                yield return new WaitForSeconds(2f);
+            }
+            catch (Exception e) {
+                Plugin.Log.LogInfo("error getting target, try again later");
 
             }
+            yield return new WaitForSeconds(2f);
 
+            
         }
-        Plugin.Log.LogInfo("check in range");
-
         bool InRange = false;
         while (!InRange)
         {
-            Plugin.Log.LogInfo("checking in range");
-
-            if (follower.TargetObject == null || follower.TargetObject.GetComponent<Health>().team == Health.Team.PlayerTeam)
+            while (follower.TargetObject == null || follower.TargetObject.GetComponent<Health>().team == Health.Team.PlayerTeam)
             {
                 Plugin.Log.LogInfo("target lost or was targeting player, trying again");
-                follower.StartCoroutine(follower.WaitForTarget());
-                yield return null;
+                yield return new WaitForSeconds(0.3f);
+                try {
+                    var newEnemy = this.GetRandomEnemy();
+                    if (newEnemy != null) {
+                        follower.TargetObject = newEnemy.gameObject;
+                    }
+                }
+                catch (Exception e) {
+                    Plugin.Log.LogInfo("targets not loaded yet, try again later");
+                }
+                
+                // follower.StartCoroutine(this.WaitForEnemy());
+                // yield break;
             }
-            Plugin.Log.LogInfo("checking in range 2");
             if ((double)Vector3.Distance(follower.TargetObject.transform.position, follower.transform.position) <= follower.VisionRange)
                 InRange = true;
         }
@@ -97,22 +131,24 @@ public class FollowerRoutines : MonoBehaviour
         {
             if (follower.TargetObject == null || follower.TargetObject.GetComponent<Health>().team == Health.Team.PlayerTeam)
             {
-                Plugin.Log.LogInfo("was null, so find new target");
+                Plugin.Log.LogInfo("was null, so find new target, stop chase");
                 yield return new WaitForSeconds(0.35f);
-                if (follower.GetClosestTarget(true) != null)
-                {
-                    follower.TargetObject = follower.GetClosestTarget(true).gameObject;
-                    Plugin.Log.LogInfo("was null, so found new target of " + follower.GetClosestTarget(true).team);
-                }
-                else
-                {
-                    Plugin.Log.LogInfo("target closest was null, so found new target of playerfarming");
-                    follower.givePath(PlayerFarming.Instance.transform.position + (Vector3)UnityEngine.Random.insideUnitCircle * 2f);
-                    follower.followerTimestamp = Time.time + 0.25f;
-                    yield return null;
-                    continue;
-
-                }
+                this.StartCoroutine(this.WaitForEnemy());
+                yield break;
+                // var newEnemy = this.GetRandomEnemy();
+                // if (newEnemy != null)
+                // {
+                //     follower.TargetObject = newEnemy.gameObject;
+                //     Plugin.Log.LogInfo("was null, so found new target of " + newEnemy.team);
+                // }
+                // else
+                // {
+                //     Plugin.Log.LogInfo("target closest was null, so found new target of playerfarming");
+                //     follower.givePath(PlayerFarming.Instance.transform.position + (Vector3)UnityEngine.Random.insideUnitCircle * 2f);
+                //     follower.followerTimestamp = Time.time + 0.25f;
+                //     yield return null;
+                //     continue;
+                // }
             }
             if (follower.damageColliderEvents != null)
                 follower.damageColliderEvents.SetActive(false);
@@ -123,7 +159,13 @@ public class FollowerRoutines : MonoBehaviour
 
             if (follower.MyState == EnemyFollower.State.WaitAndTaunt)
             {
+                yield return new WaitForSeconds(0.02f);
                 Plugin.Log.LogInfo("wait and taunting");
+                if (follower.TargetObject == null) {
+                    Plugin.Log.LogInfo("target is gone, need to find new target");
+                    follower.StartCoroutine(this.WaitForEnemy());
+                    yield break;
+                }
 
                 if (follower.Spine.AnimationName != "roll-stop" && follower.state.CURRENT_STATE == StateMachine.State.Moving && follower.Spine.AnimationName != "run")
                     follower.Spine.AnimationState.SetAnimation(1, "run", true);
@@ -139,12 +181,25 @@ public class FollowerRoutines : MonoBehaviour
                     {
                         if (follower.ChargeAndAttack && (follower.MaxAttackDelay < 0.0 || follower.AttackDelay < 0.0))
                         {
-                            Plugin.Log.LogInfo("Attacking now");
-                            follower.health.invincible = false;
-                            follower.StopAllCoroutines();
-                            yield return follower.StartCoroutine(this.FightPlayer(1.5f));
-                            Plugin.Log.LogInfo("Attacking complete");
-                            /*Loop = false; //todo: if false?*/
+                            try {
+                                var health = follower.TargetObject.GetComponent<Health>();
+                                Plugin.Log.LogInfo("Attacking now, i am attacking " + follower.TargetObject.name + " health at " + health.HP);
+
+                                if (health.HP <= 0) {
+                                    Plugin.Log.LogInfo("Attacking now, i am attacking an enemy at 0 hp, so find new target");
+                                    follower.StartCoroutine(this.WaitForEnemy());
+                                    yield break;
+                                }
+                                else {
+                                    follower.health.invincible = false;
+                                    follower.StopAllCoroutines();
+                                    follower.StartCoroutine(this.FightPlayer(1.5f));
+                                    yield break;
+                                }
+                            }
+                            catch (Exception e) {
+                                Plugin.Log.LogInfo("Attacking an null enemy " + e.Message);
+                            }
                         }
                         else if (!follower.health.HasShield)
                         {
@@ -166,6 +221,24 @@ public class FollowerRoutines : MonoBehaviour
         }
     }
 
+    public IEnumerator<object> RepositionSelfIfOutside() {
+        yield return new WaitForSeconds(2f);
+        if (BiomeGenerator.Instance.CurrentRoom.Completed) {
+            Plugin.Log.LogInfo("Follower reposition to player");
+            follower.transform.position = PlayerFarming.Instance.transform.position;
+        }
+
+        // foreach (RaycastHit2D raycastHit2D in Physics2D.RaycastAll((Vector2) this.transform.position, (Vector2) (follower.transform.position - this.transform.position).normalized, Vector3.Distance(follower.transform.position, this.transform.position)))
+        // {
+        //     CompositeCollider2D component2 = raycastHit2D.collider.GetComponent<CompositeCollider2D>();
+        //     RoomLockController component3 = raycastHit2D.collider.GetComponent<RoomLockController>();
+        //     if (component2 != null || component3 != null)
+        //     {
+        //         break;
+        //     }
+        // }
+    }
+
     public IEnumerator<object> FightPlayer(float attackDistance = 1.5f)
     {
         follower.MyState = EnemyFollower.State.Attacking;
@@ -185,7 +258,8 @@ public class FollowerRoutines : MonoBehaviour
             if (follower.TargetObject == null)
             {
                 yield return new WaitForSeconds(0.3f);
-                follower.StartCoroutine(follower.WaitForTarget());
+                Plugin.Log.LogInfo("was null in fightplayer");
+                follower.StartCoroutine(this.WaitForEnemy());
                 yield break;
             }
             else
@@ -212,7 +286,7 @@ public class FollowerRoutines : MonoBehaviour
                                 follower.RepathTimer = 0.0f;
                                 follower.givePath(follower.TargetObject.transform.position);
                             }
-                            if ((UnityEngine.Object)follower.damageColliderEvents != (UnityEngine.Object)null)
+                            if (follower.damageColliderEvents != null)
                             {
                                 if ((double)follower.state.Timer < 0.20000000298023224 && !follower.health.WasJustParried)
                                     follower.damageColliderEvents.SetActive(true);
@@ -220,20 +294,20 @@ public class FollowerRoutines : MonoBehaviour
                                     follower.damageColliderEvents.SetActive(false);
                             }
                         }
-                        if ((UnityEngine.Object)follower.damageColliderEvents != (UnityEngine.Object)null)
+                        if (follower.damageColliderEvents != null)
                         {
                             follower.damageColliderEvents.SetActive(false);
                             break;
                         }
                         break;
                     case StateMachine.State.SignPostAttack:
-                        if ((UnityEngine.Object)follower.damageColliderEvents != (UnityEngine.Object)null)
+                        if (follower.damageColliderEvents != null)
                             follower.damageColliderEvents.SetActive(false);
                         follower.SimpleSpineFlash.FlashWhite(follower.state.Timer / SignPostDelay);
                         follower.state.Timer += Time.deltaTime;
                         if ((double)follower.state.Timer >= (double)SignPostDelay - (double)EnemyFollower.signPostParryWindow)
                             follower.canBeParried = true;
-                        if (follower.health.team == Health.Team.PlayerTeam && (UnityEngine.Object)follower.TargetObject != (UnityEngine.Object)null)
+                        if (follower.health.team == Health.Team.PlayerTeam && follower.TargetObject != null)
                         {
                             follower.state.LookAngle = Utils.GetAngle(follower.transform.position, follower.TargetObject.transform.position);
                             follower.Spine.skeleton.ScaleX = (double)follower.state.LookAngle <= 90.0 || (double)follower.state.LookAngle >= 270.0 ? -1f : 1f;
@@ -262,12 +336,12 @@ public class FollowerRoutines : MonoBehaviour
                             AttackSpeed -= 1f * GameManager.DeltaTime;
                         // follower.speed = AttackSpeed * Time.deltaTime;
                         follower.SimpleSpineFlash.FlashWhite(false);
-                        follower.canBeParried = (double)follower.state.Timer <= (double)EnemyFollower.attackParryWindow;
+                        follower.canBeParried = follower.state.Timer <= EnemyFollower.attackParryWindow;
                         if ((double)(follower.state.Timer += Time.deltaTime) >= (AttackCount + 1 <= NumAttacks ? 0.5 : 1.0))
                         {
                             if (++AttackCount <= NumAttacks)
                             {
-                                AttackSpeed = MaxAttackSpeed + (float)((3 - NumAttacks) * 2);
+                                AttackSpeed = MaxAttackSpeed + (3 - NumAttacks) * 2;
                                 follower.state.CURRENT_STATE = StateMachine.State.SignPostAttack;
                                 follower.variant = UnityEngine.Random.Range(0, 2);
                                 string animationName = "attack-charge";
@@ -281,9 +355,10 @@ public class FollowerRoutines : MonoBehaviour
                         }
                         break;
                 }
-                yield return (object)null;
+                yield return null;
             }
         }
-        follower.StartCoroutine(follower.ChasePlayer());
+        Plugin.Log.LogInfo("starting to chase player again");
+        follower.StartCoroutine(this.ChaseEnemy());
     }
 }

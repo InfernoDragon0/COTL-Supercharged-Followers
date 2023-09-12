@@ -18,7 +18,7 @@ namespace SuperchargedFollowers
     {
         public const string PluginGuid = "InfernoDragon0.cotl.SuperchargedFollowers";
         public const string PluginName = "SuperchargedFollowers";
-        public const string PluginVer = "1.0.1";
+        public const string PluginVer = "1.0.2";
 
         internal static ManualLogSource Log;
         internal readonly static Harmony Harmony = new(PluginGuid);
@@ -60,8 +60,8 @@ namespace SuperchargedFollowers
             PluginPath = Path.GetDirectoryName(Info.Location);
 
             //SETUP: Config
-            followerTransparency = Config.Bind("SuperchargedFollowers", "Follower Transparency", 0.85f, "Transparency of the followers, from 0 to 1");
-            shouldCommanderTransparent = Config.Bind("SuperchargedFollowers", "Commander Transparency", true, "Should the commander be transparent?");
+            followerTransparency = Config.Bind("SuperchargedFollowers", "FollowerTransparency", 0.5f, "Transparency of the followers, from 0 to 1");
+            shouldCommanderTransparent = Config.Bind("SuperchargedFollowers", "CommanderTransparency", true, "Should the commander be transparent?");
             /*ammoConfig = Config.Bind("SuperchargedTarots", "Ammo", 66f, "Fervor Use Discount (higher the lesser, but dont go over 100)");*/
 
             //ADD: ITEMS

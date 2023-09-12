@@ -16,12 +16,12 @@ namespace SuperchargedFollowers.Patches
             FollowerManager.SpawnedFollower spawnedFollower = FollowerManager.SpawnCopyFollower(FollowerManager.CombatFollowerPrefab, followerInfo, position, PlayerFarming.Instance.transform.parent, BiomeGenerator.Instance.DungeonLocation);
             
             //DO TRANSPARENCY
-            Plugin.Log.LogInfo("doing transparency");
-            Renderer renderer = spawnedFollower.Follower.GetComponentInChildren<Renderer>();
-            Color color = renderer.material.color;
-            color.a = Plugin.followerTransparency.Value;
-            renderer.material.color = color;
-            Plugin.Log.LogInfo("done transparency");
+            // Plugin.Log.LogInfo("doing transparency");
+            // // Renderer renderer = spawnedFollower.Follower.GetComponentInChildren<Renderer>();
+            // // Color color = renderer.material.color;
+            // // color.a = Plugin.followerTransparency.Value;
+            // // renderer.material.color = color;
+            // Plugin.Log.LogInfo("done transparency");
 
 
             spawnedFollower.Follower.State.CURRENT_STATE = StateMachine.State.CustomAnimation;
@@ -40,15 +40,28 @@ namespace SuperchargedFollowers.Patches
             //SCALING
             if (followerInfo == Plugin.commander) {
                 spawnedFollower.Follower.transform.DOScale(1f + commanderBonus.SizeBonus, 0.25f).SetEase(Ease.OutBounce);
+                if (Plugin.shouldCommanderTransparent.Value) {
+                    // spawnedFollower.Follower.Spine.skeleton.a = 0.5f;//Plugin.followerTransparency.Value;
+                    spawnedFollower.Follower.Spine.skeleton.A = Plugin.followerTransparency.Value;
+                }
+            }
+            else {
+                // spawnedFollower.Follower.Spine.skeleton.a = 0.5f;//Plugin.followerTransparency.Value;
+                spawnedFollower.Follower.Spine.skeleton.A = Plugin.followerTransparency.Value;
             }
             
-            // DAMAGE BALANCING TODO:check if commander TODO: Prestiges
+            //TRANSPARENCY
+
+
+            // DAMAGE BALANCING
             modifiedFollower.Damage = 0.5f + prestigeBonus.AttackBonus + classBonus.AttackBonus + commanderBonus.AttackBonus + necklaceBonus.AttackBonus;
 
             modifiedFollower.speed = 0.08f + prestigeBonus.MovementSpeedBonus + classBonus.MovementSpeedBonus + commanderBonus.MovementSpeedBonus + necklaceBonus.MovementSpeedBonus;
             modifiedFollower.maxSpeed = 0.08f + prestigeBonus.MovementSpeedBonus + classBonus.MovementSpeedBonus + commanderBonus.MovementSpeedBonus + necklaceBonus.MovementSpeedBonus;
-            // HEALTH BALANCING TODO:check if commander
+            
+            // HEALTH BALANCING
             Health component = spawnedFollower.Follower.GetComponent<Health>();
+            component.ImmuneToPlayer = true;
             component.totalHP = 10f + prestigeBonus.HealthBonus + classBonus.HealthBonus + commanderBonus.HealthBonus + necklaceBonus.HealthBonus;
             component.HP = component.totalHP;
 
@@ -66,6 +79,19 @@ namespace SuperchargedFollowers.Patches
         {
             if (Plugin.summoned)
             {
+                Plugin.Log.LogInfo("Already summoned, repositioning to player if outside of room");
+                foreach (Follower follower in Plugin.tempSummoned)
+                {
+                    if (follower.Health.HP > 0) {
+                        try {
+                            follower.StartCoroutine(follower.GetComponent<EnemyFollower>().gameObject.GetComponent<FollowerRoutines>().RepositionSelfIfOutside());
+
+                        }
+                        catch (Exception e) {
+                            Plugin.Log.LogInfo("FollowerRoutines may not have initialized yet, skipping");
+                        }
+                    }
+                }
                 return true;
             }
             Plugin.summoned = true;
