@@ -9,6 +9,19 @@ NOTE: You must click the rally flag again after every run to allow your follower
 
 # Supercharged Series: Followers
 
+![image](https://i.imgur.com/9oZbUBS.png)
+
+### V1.0.2 - [Optimization & Bugfixes]
+- Performance improvements by removing stacking coroutines, reducing the chances of crashing
+- Teleport followers into the map again if out of bounds
+- Added config to change transparency of followers and commander (Defaults to 0.5 transparency, set to 1 for fully opaque)
+- Improved pathfinding for followers, preventing them from hitting air
+- Custom Random Targetting priority instead of closest target
+- Fixed an issue where prestige is given instead of taken if follower was max level
+- Fixed Regeneration per room not working as expected
+
+---
+
 ### 2 New Structure!
 - Rally Flag: Left click to rally your followers to battle. Right click to set a commander for your followers
 - Barracks: Left click to change your follower class for different sets of bonuses! Right click for Prestige leveling
@@ -70,3 +83,8 @@ NOTE: You must click the rally flag again after every run to allow your follower
 
 ### How to Contribute
 Feel free to provide more art for any parts of the mod! DM me on Discord: Infernodragon1 or join the discord linked above!
+
+# Changelog
+
+### v1.0.1
+- Potentially fix an issue with followers loading early and not pathfinding anymore
