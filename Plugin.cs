@@ -18,7 +18,7 @@ namespace SuperchargedFollowers
     {
         public const string PluginGuid = "InfernoDragon0.cotl.SuperchargedFollowers";
         public const string PluginName = "SuperchargedFollowers";
-        public const string PluginVer = "1.0.2";
+        public const string PluginVer = "1.0.3";
 
         internal static ManualLogSource Log;
         internal readonly static Harmony Harmony = new(PluginGuid);

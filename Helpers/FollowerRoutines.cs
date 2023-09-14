@@ -32,7 +32,7 @@ public class FollowerRoutines : MonoBehaviour
         else {
             //target player if no mor enemy
             Plugin.Log.LogInfo("Returning player");
-            return PlayerFarming.Instance.health ?? null;
+            return null;
         }
     }
 
@@ -55,7 +55,7 @@ public class FollowerRoutines : MonoBehaviour
 
         while (follower.TargetObject == null)
         {
-            Plugin.Log.LogInfo("target null, get closest target");
+            Plugin.Log.LogInfo("target null, waiting for target");
 
             try {
                 var nextTarget = this.GetRandomEnemy();
@@ -63,54 +63,19 @@ public class FollowerRoutines : MonoBehaviour
                 {
                     Plugin.Log.LogInfo("target found of " + nextTarget);
                     follower.TargetObject = nextTarget.gameObject;
+                    Plugin.Log.LogInfo("Chasing");
+                    follower.StartCoroutine(this.ChaseEnemy());
+                    yield break;
                 }
-                else
-                {
-                    Plugin.Log.LogInfo("pathing to player");
-                    try
-                    {
-                        follower.givePath(PlayerFarming.Instance.transform.position + (Vector3)UnityEngine.Random.insideUnitCircle * 2f);
-                        follower.followerTimestamp = Time.time + 0.25f;
-                    }
-                    catch (Exception e)
-                    {
-                        Plugin.Log.LogInfo("error pathing to player, try again later: " + e.Message);
-                    }
-                }
+                
             }
             catch (Exception e) {
                 Plugin.Log.LogInfo("error getting target, try again later");
 
             }
-            yield return new WaitForSeconds(2f);
-
-            
+            yield return new WaitForSeconds(0.5f);
         }
-        bool InRange = false;
-        while (!InRange)
-        {
-            while (follower.TargetObject == null || follower.TargetObject.GetComponent<Health>().team == Health.Team.PlayerTeam)
-            {
-                Plugin.Log.LogInfo("target lost or was targeting player, trying again");
-                yield return new WaitForSeconds(0.3f);
-                try {
-                    var newEnemy = this.GetRandomEnemy();
-                    if (newEnemy != null) {
-                        follower.TargetObject = newEnemy.gameObject;
-                    }
-                }
-                catch (Exception e) {
-                    Plugin.Log.LogInfo("targets not loaded yet, try again later");
-                }
-                
-                // follower.StartCoroutine(this.WaitForEnemy());
-                // yield break;
-            }
-            if ((double)Vector3.Distance(follower.TargetObject.transform.position, follower.transform.position) <= follower.VisionRange)
-                InRange = true;
-        }
-        Plugin.Log.LogInfo("Chasing");
-        follower.StartCoroutine(this.ChaseEnemy());
+        
         yield return null;
     }
 
@@ -357,6 +322,7 @@ public class FollowerRoutines : MonoBehaviour
                 }
                 yield return null;
             }
+            yield return null;
         }
         Plugin.Log.LogInfo("starting to chase player again");
         follower.StartCoroutine(this.ChaseEnemy());
