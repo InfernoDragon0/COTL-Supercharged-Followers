@@ -14,15 +14,6 @@ namespace SuperchargedFollowers.Patches
         private static FollowerManager.SpawnedFollower SpawnAllyFollower(FollowerInfo followerInfo, Vector3 position)
         {
             FollowerManager.SpawnedFollower spawnedFollower = FollowerManager.SpawnCopyFollower(FollowerManager.CombatFollowerPrefab, followerInfo, position, PlayerFarming.Instance.transform.parent, BiomeGenerator.Instance.DungeonLocation);
-            
-            //DO TRANSPARENCY
-            // Plugin.Log.LogInfo("doing transparency");
-            // // Renderer renderer = spawnedFollower.Follower.GetComponentInChildren<Renderer>();
-            // // Color color = renderer.material.color;
-            // // color.a = Plugin.followerTransparency.Value;
-            // // renderer.material.color = color;
-            // Plugin.Log.LogInfo("done transparency");
-
 
             spawnedFollower.Follower.State.CURRENT_STATE = StateMachine.State.CustomAnimation;
             spawnedFollower.Follower.Spine.AnimationState.SetAnimation(1, "spawn-in", false);
@@ -37,21 +28,18 @@ namespace SuperchargedFollowers.Patches
             var commanderBonus = Helpers.Bonuses.GetCommanderBonuses(spawnedFollower.FollowerBrain._directInfoAccess);
             var necklaceBonus = Helpers.Bonuses.GetNecklaceBonuses(spawnedFollower.FollowerBrain._directInfoAccess);
 
-            //SCALING
+            //SCALING & TRANSPARENCY
             if (followerInfo == Plugin.commander) {
                 spawnedFollower.Follower.transform.DOScale(1f + commanderBonus.SizeBonus, 0.25f).SetEase(Ease.OutBounce);
+                modifiedFollower.variant = 1;
                 if (Plugin.shouldCommanderTransparent.Value) {
-                    // spawnedFollower.Follower.Spine.skeleton.a = 0.5f;//Plugin.followerTransparency.Value;
                     spawnedFollower.Follower.Spine.skeleton.A = Plugin.followerTransparency.Value;
                 }
             }
             else {
-                // spawnedFollower.Follower.Spine.skeleton.a = 0.5f;//Plugin.followerTransparency.Value;
+                modifiedFollower.variant = 0;
                 spawnedFollower.Follower.Spine.skeleton.A = Plugin.followerTransparency.Value;
             }
-            
-            //TRANSPARENCY
-
 
             // DAMAGE BALANCING
             modifiedFollower.Damage = 0.5f + prestigeBonus.AttackBonus + classBonus.AttackBonus + commanderBonus.AttackBonus + necklaceBonus.AttackBonus;

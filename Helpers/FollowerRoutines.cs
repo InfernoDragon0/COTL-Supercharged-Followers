@@ -15,6 +15,7 @@ public class FollowerRoutines : MonoBehaviour
         Plugin.Log.LogInfo("follower is " + follower);
     }
 
+
     public Health GetRandomEnemy() {
         Plugin.Log.LogInfo("Attempting to find random enemy");
         List<Health> enemies = Health.team2;
@@ -31,7 +32,7 @@ public class FollowerRoutines : MonoBehaviour
         }
         else {
             //target player if no mor enemy
-            Plugin.Log.LogInfo("Returning player");
+            Plugin.Log.LogInfo("Returning none");
             return null;
         }
     }
@@ -41,7 +42,6 @@ public class FollowerRoutines : MonoBehaviour
         follower.Spine.Initialize(false);
         follower.state.CURRENT_STATE = StateMachine.State.Idle;
         follower.Spine.AnimationState.SetAnimation(0, "Conversations/idle-nice", true);
-        Plugin.Log.LogInfo("waiting for room active");
 
         while (!GameManager.RoomActive)
         {
@@ -50,10 +50,28 @@ public class FollowerRoutines : MonoBehaviour
 
         while (BiomeGenerator.Instance.CurrentRoom.Completed) {
             Plugin.Log.LogInfo("Room is cleared, waiting for next room");
+            follower.Spine.AnimationState.SetAnimation(1, "Conversations/idle-nice", true);
             yield return new WaitForSeconds(1f);
         }
 
-        while (follower.TargetObject == null)
+        Plugin.Log.LogInfo("room active, waiting for target ");
+
+        if (follower.TargetObject != null) {
+            Plugin.Log.LogInfo("target was not null, so reset target and try again");
+            var nextTarget = this.GetRandomEnemy();
+            if (nextTarget != null)
+            {
+                Plugin.Log.LogInfo("target found of " + nextTarget);
+                follower.TargetObject = nextTarget.gameObject;
+                Plugin.Log.LogInfo("Chasing");
+                follower.StopAllCoroutines();
+                follower.StartCoroutine(this.ChaseEnemy());
+                yield break;
+            }
+        }
+
+
+        while (follower.TargetObject == null || follower.TargetObject.GetComponent<Health>().team == Health.Team.PlayerTeam)
         {
             Plugin.Log.LogInfo("target null, waiting for target");
 
@@ -64,6 +82,7 @@ public class FollowerRoutines : MonoBehaviour
                     Plugin.Log.LogInfo("target found of " + nextTarget);
                     follower.TargetObject = nextTarget.gameObject;
                     Plugin.Log.LogInfo("Chasing");
+                    follower.StopAllCoroutines();
                     follower.StartCoroutine(this.ChaseEnemy());
                     yield break;
                 }
@@ -83,6 +102,7 @@ public class FollowerRoutines : MonoBehaviour
     {
         follower.MyState = EnemyFollower.State.WaitAndTaunt;
         follower.state.CURRENT_STATE = StateMachine.State.Idle;
+        follower.Spine.AnimationState.SetAnimation(0, "Conversations/idle-nice", true);
 
         //ATTACK SPEED BALANCING TODO: change values based on follower level
         follower.AttackDelay = UnityEngine.Random.Range(follower.AttackDelayRandomRange.x, follower.AttackDelayRandomRange.y);
@@ -97,23 +117,9 @@ public class FollowerRoutines : MonoBehaviour
             if (follower.TargetObject == null || follower.TargetObject.GetComponent<Health>().team == Health.Team.PlayerTeam)
             {
                 Plugin.Log.LogInfo("was null, so find new target, stop chase");
-                yield return new WaitForSeconds(0.35f);
-                this.StartCoroutine(this.WaitForEnemy());
+                yield return new WaitForSeconds(0.25f);
+                follower.StartCoroutine(this.WaitForEnemy());
                 yield break;
-                // var newEnemy = this.GetRandomEnemy();
-                // if (newEnemy != null)
-                // {
-                //     follower.TargetObject = newEnemy.gameObject;
-                //     Plugin.Log.LogInfo("was null, so found new target of " + newEnemy.team);
-                // }
-                // else
-                // {
-                //     Plugin.Log.LogInfo("target closest was null, so found new target of playerfarming");
-                //     follower.givePath(PlayerFarming.Instance.transform.position + (Vector3)UnityEngine.Random.insideUnitCircle * 2f);
-                //     follower.followerTimestamp = Time.time + 0.25f;
-                //     yield return null;
-                //     continue;
-                // }
             }
             if (follower.damageColliderEvents != null)
                 follower.damageColliderEvents.SetActive(false);
@@ -125,7 +131,6 @@ public class FollowerRoutines : MonoBehaviour
             if (follower.MyState == EnemyFollower.State.WaitAndTaunt)
             {
                 yield return new WaitForSeconds(0.02f);
-                Plugin.Log.LogInfo("wait and taunting");
                 if (follower.TargetObject == null) {
                     Plugin.Log.LogInfo("target is gone, need to find new target");
                     follower.StartCoroutine(this.WaitForEnemy());
@@ -240,8 +245,7 @@ public class FollowerRoutines : MonoBehaviour
                         if ((double)Vector2.Distance((Vector2)follower.transform.position, (Vector2)follower.TargetObject.transform.position) < (double)attackDistance)
                         {
                             follower.state.CURRENT_STATE = StateMachine.State.SignPostAttack;
-                            follower.variant = UnityEngine.Random.Range(0, 2);
-                            string animationName = follower.variant == 0 ? "attack-charge" : "attack-charge2";
+                            string animationName = "attack-charge";
                             follower.Spine.AnimationState.SetAnimation(1, animationName, false);
                         }
                         else
@@ -268,7 +272,7 @@ public class FollowerRoutines : MonoBehaviour
                     case StateMachine.State.SignPostAttack:
                         if (follower.damageColliderEvents != null)
                             follower.damageColliderEvents.SetActive(false);
-                        follower.SimpleSpineFlash.FlashWhite(follower.state.Timer / SignPostDelay);
+                        // follower.SimpleSpineFlash.FlashWhite(follower.state.Timer / SignPostDelay);
                         follower.state.Timer += Time.deltaTime;
                         if ((double)follower.state.Timer >= (double)SignPostDelay - (double)EnemyFollower.signPostParryWindow)
                             follower.canBeParried = true;
@@ -280,14 +284,18 @@ public class FollowerRoutines : MonoBehaviour
                         }
                         if ((double)follower.state.Timer >= (double)SignPostDelay)
                         {
-                            follower.SimpleSpineFlash.FlashWhite(false);
-                            CameraManager.shakeCamera(0.4f, follower.state.LookAngle);
+                            // follower.SimpleSpineFlash.FlashWhite(false);
+                            // CameraManager.shakeCamera(0.4f, follower.state.LookAngle);
                             follower.state.CURRENT_STATE = StateMachine.State.RecoverFromAttack;
                             // follower.speed = AttackSpeed * 0.0166666675f;
-                            string animationName = follower.variant == 0 ? "attack-impact" : "attack-impact2";
+                            string animationName = follower.variant == 0 ? "attack-impact" : "attack-impact-multi";
                             follower.Spine.AnimationState.SetAnimation(1, animationName, false);
                             follower.canBeParried = true;
                             follower.StartCoroutine(follower.EnableDamageCollider(0.0f));
+                            if (follower.variant == 1) {
+                                follower.StartCoroutine(follower.EnableDamageCollider(0.7f));
+                                follower.StartCoroutine(follower.EnableDamageCollider(1.4f));
+                            }
                             if (!string.IsNullOrEmpty(follower.attackSoundPath))
                             {
                                 AudioManager.Instance.PlayOneShot(follower.attackSoundPath, follower.transform.position);
@@ -300,9 +308,10 @@ public class FollowerRoutines : MonoBehaviour
                         if ((double)AttackSpeed > 0.0)
                             AttackSpeed -= 1f * GameManager.DeltaTime;
                         // follower.speed = AttackSpeed * Time.deltaTime;
-                        follower.SimpleSpineFlash.FlashWhite(false);
+                        // follower.SimpleSpineFlash.FlashWhite(false);
+                        follower.Spine.AnimationState.SetAnimation(0, "Conversations/idle-nice", true);
                         follower.canBeParried = follower.state.Timer <= EnemyFollower.attackParryWindow;
-                        if ((double)(follower.state.Timer += Time.deltaTime) >= (AttackCount + 1 <= NumAttacks ? 0.5 : 1.0))
+                        if ((double)(follower.state.Timer += Time.deltaTime) >= 0.6)
                         {
                             if (++AttackCount <= NumAttacks)
                             {
@@ -315,7 +324,7 @@ public class FollowerRoutines : MonoBehaviour
                                 break;
                             }
                             Loop = false;
-                            follower.SimpleSpineFlash.FlashWhite(false);
+                            // follower.SimpleSpineFlash.FlashWhite(false);
                             break;
                         }
                         break;
@@ -324,7 +333,7 @@ public class FollowerRoutines : MonoBehaviour
             }
             yield return null;
         }
-        Plugin.Log.LogInfo("starting to chase player again");
+        Plugin.Log.LogInfo("starting to chase again");
         follower.StartCoroutine(this.ChaseEnemy());
     }
 }
