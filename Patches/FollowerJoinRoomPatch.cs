@@ -128,7 +128,7 @@ namespace SuperchargedFollowers.Patches
             if (__instance.health.team == Health.Team.PlayerTeam && __instance.health.isPlayerAlly)
             {
                 Plugin.Log.LogInfo("waiting for target");
-                __instance.StartCoroutine(__instance.GetComponent<FollowerRoutines>().WaitForEnemy());
+                // __instance.StartCoroutine(__instance.GetComponent<FollowerRoutines>().RunFollowerAI());
 
                 return false;
             }
@@ -145,7 +145,7 @@ namespace SuperchargedFollowers.Patches
             {
                 Plugin.Log.LogInfo("start chasing 2");
 
-                __instance.StartCoroutine(__instance.GetComponent<FollowerRoutines>().ChaseEnemy());
+                __instance.StartCoroutine(__instance.GetComponent<FollowerRoutines>().RunFollowerAI());
 
                 return false;
             }

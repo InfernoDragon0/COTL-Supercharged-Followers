@@ -49,6 +49,7 @@ namespace SuperchargedFollowers
 
         //STRUCTURES
         public static StructureBrain.TYPES rally;
+        public static StructureBrain.TYPES rallymulti;
         public static StructureBrain.TYPES barracks;
 
         public static List<int> allJobs;
@@ -84,6 +85,7 @@ namespace SuperchargedFollowers
 
             //ADD: STRUCTURES
             rally = CustomStructureManager.Add(new RallyStructure());
+            rallymulti = CustomStructureManager.Add(new RallyMultiStructure());
             barracks = CustomStructureManager.Add(new BarracksStructure());
 
         }
