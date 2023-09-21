@@ -49,6 +49,7 @@ public class Interaction_RallyMulti : Interaction
                 blackList.Add(follower);
         }
 
+        Plugin.summonList.Clear();
         Plugin.summonList.AddRange(blackList);
         NotificationCentreScreen.Play("Rallied " + blackList.Count +  " followers!");
         this.Activating = false;

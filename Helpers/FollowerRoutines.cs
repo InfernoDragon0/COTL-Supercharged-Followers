@@ -62,7 +62,7 @@ public class FollowerRoutines : MonoBehaviour
         while(Loop) {
 
             //WAIT IF ROOM IS CLEARED
-            while (BiomeGenerator.Instance.CurrentRoom.Completed) {
+            while (Health.team2.Count == 0) {
                 Plugin.Log.LogInfo("Room is cleared, waiting for next room");
                 follower.Spine.AnimationState.SetAnimation(1, "Conversations/idle-nice", true);
                 this.myState = SuperchargedFollowersAIState.Idle;
@@ -81,6 +81,7 @@ public class FollowerRoutines : MonoBehaviour
                         this.myState = SuperchargedFollowersAIState.Chasing;
                     }
                     else {
+                        this.myState = SuperchargedFollowersAIState.Idle;
                         yield return new WaitForSeconds(0.05f);
                     }
                     yield return null;
