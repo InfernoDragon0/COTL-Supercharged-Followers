@@ -60,6 +60,11 @@ public class FollowerRoutines : MonoBehaviour
         //SWITCH CASE FOR ALL STATES SuperchargedFollowersAIState
         bool Loop = true;
         while(Loop) {
+            //WAIT FOR ROOM TO BE READY
+            while (!GameManager.RoomActive)
+            {
+                yield return null;
+            }
 
             //WAIT IF ROOM IS CLEARED
             while (Health.team2.Count == 0) {
