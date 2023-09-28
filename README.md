@@ -5,24 +5,30 @@
 - If you like the mod, consider donating at [kofi](https://ko-fi.com/infernodragon0) or (new) [patreon](https://www.patreon.com/InfernoDragon0)! Thank you for checking out the mod!
 
 ### Notes
-NOTE: You must click the rally flag again after every run to allow your followers to join the fight
+NOTE: You must click one of the rally flags again after every run to allow your followers to join the fight. All of the art in this mod are currently placeholders. You can contribute to the art by DMing me on discord: InfernoDragon1
 
 # Supercharged Series: Followers
 
 ![image](https://i.imgur.com/9oZbUBS.png)
 
-### V1.0.2 - [Optimization & Bugfixes]
-- Performance improvements by removing stacking coroutines, reducing the chances of crashing
-- Teleport followers into the map again if out of bounds
-- Added config to change transparency of followers and commander (Defaults to 0.5 transparency, set to 1 for fully opaque)
-- Improved pathfinding for followers, preventing them from hitting air
-- Custom Random Targetting priority instead of closest target
-- Fixed an issue where prestige is given instead of taken if follower was max level
-- Fixed Regeneration per room not working as expected
+### v1.0.3 - [AI Improvements]
+### 1 New Structure
+- Added a Super Rally Flag to rally or un-rally all followers
+
+### Balancing
+- Commander will now strike 3 times per attack
+- Reduced delay between attacks to 0.6 seconds (from 1 second)
+
+### Performance improvements & Bugfixes
+- Rewritten (again) the follower AI to only have one per follower
+- Improved pathfinding and reduced delays for each follower finding enemies
+- Should continue fighting if new enemies spawn after the original enemies are cleared
+- Removed white flashing & camera shake from followers attacking
+- Follower brain no longer stop working at random chances
 
 ---
 
-### 2 New Structure!
+### Structures
 - Rally Flag: Left click to rally your followers to battle. Right click to set a commander for your followers
 - Barracks: Left click to change your follower class for different sets of bonuses! Right click for Prestige leveling
 
@@ -41,7 +47,7 @@ NOTE: You must click the rally flag again after every run to allow your follower
 
 ## Equipment & Bonuses for your followers
 ### Commander Boosts (Set Commander via Rally Flag)
-- Only 1 commander can be set, via the barracks
+- Only 1 commander can be set, via the Rally Flag
 - Attack +3
 - Health +10
 - Attack Speed +1
@@ -81,10 +87,22 @@ NOTE: You must click the rally flag again after every run to allow your follower
 ### Developer
 - [InfernoDragon0](https://github.com/InfernoDragon0)
 
+### Tester
+- danylopez123: for testing the many iterations of fixing the follower's combat brain
+
 ### How to Contribute
-Feel free to provide more art for any parts of the mod! DM me on Discord: Infernodragon1 or join the discord linked above!
+Like testing mods or contributing art? DM me on Discord: Infernodragon1 or join the discord linked above!
 
 # Changelog
 
 ### v1.0.1
 - Potentially fix an issue with followers loading early and not pathfinding anymore
+
+### v1.0.2 - [Optimization & Bugfixes]
+- Performance improvements by removing stacking coroutines, reducing the chances of crashing
+- Teleport followers into the map again if out of bounds
+- Added config to change transparency of followers and commander (Defaults to 0.5 transparency, set to 1 for fully opaque)
+- Improved pathfinding for followers, preventing them from hitting air
+- Custom Random Targetting priority instead of closest target
+- Fixed an issue where prestige is given instead of taken if follower was max level
+- Fixed Regeneration per room not working as expected
