@@ -61,7 +61,7 @@ public class Interaction_Barracks : Interaction
                 blackList.Add(follower);
         }
 
-        followerSelectMenu.Show(DataManager.Instance.Followers, blackList, false, UpgradeSystem.Type.Count);
+        followerSelectMenu.Show(MissionaryManager.FollowersAvailableForMission(), false, UpgradeSystem.Type.Building_Missionary);
         // followerSelectMenu._missionInfoCardController.ShowCardWithParam(DataManager.Instance.Followers[0]);
         // followerSelectMenu._missionInfoCardController._currentCard.Configure(followerInfo);
 
@@ -153,7 +153,7 @@ public class Interaction_Barracks : Interaction
             {
                 var prestige = Helpers.Bonuses.GetPrestigeBonuses(fib.FollowerInfo);
                 var classBonus = Helpers.Bonuses.GetClassBonuses(fib.FollowerInfo);
-                fib.FollowerRole.text = classBonus.ClassName + " | Prestige " + prestige.Level + " |  Health: " + (0.5 + fib._followerInfo.FollowerLevel * 1)  + " | Attack: " + (fib._followerInfo.FollowerLevel * 0.5);
+                fib.FollowerRole.text = classBonus.ClassName + " | Prestige " + prestige.Level + " |  Health: " + (0.5 + fib._followerInfo.DwellingLevel * 1)  + " | Attack: " + (fib._followerInfo.DwellingLevel * 0.5);
             }
         });
         followerSelectMenu.OnHidden += () =>
@@ -190,7 +190,7 @@ public class Interaction_Barracks : Interaction
                 blackList.Add(follower);
         }
 
-        followerSelectMenu.Show(DataManager.Instance.Followers, blackList, false, UpgradeSystem.Type.Count, true, true, true);
+        followerSelectMenu.Show(MissionaryManager.FollowersAvailableForMission(), false, UpgradeSystem.Type.Building_Missionary, true, true, true);
 
         followerSelectMenu.OnFollowerSelected += new System.Action<FollowerInfo>(this.OnPrestigeChosen);
         followerSelectMenu.OnShown += new System.Action(() =>

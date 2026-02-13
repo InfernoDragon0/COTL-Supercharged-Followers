@@ -154,6 +154,14 @@ namespace SuperchargedFollowers.Patches
             return true;
         }
 
+        [HarmonyPatch(typeof(GameManager), nameof(GameManager.HitStop))]
+        [HarmonyPrefix]
+        public static bool GameManager_HitStop() //prevents the "end lag" for hitting enemies
+        {
+            return !Plugin.shouldBypassHitStop.Value;
+        }
+
+
         /*[HarmonyPatch(typeof(EnemyFollower), nameof(EnemyFollower.FightPlayer))] //*** THIS IS TEMPORARY, change to Health.DealDamage
         [HarmonyPostfix]
         public static void EnemyFollower_FightPlayer(EnemyFollower __instance)

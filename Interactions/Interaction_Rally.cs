@@ -56,7 +56,7 @@ public class Interaction_Rally : Interaction
                 blackList.Add(follower);
         }
 
-        followerSelectMenu.Show(DataManager.Instance.Followers, blackList, false, UpgradeSystem.Type.Count, true, true, true);
+        followerSelectMenu.Show(MissionaryManager.FollowersAvailableForMission(), false, UpgradeSystem.Type.Building_Missionary, true, true, true);
 
         followerSelectMenu.OnFollowerSelected += new System.Action<FollowerInfo>(this.OnFollowerChosen);
         followerSelectMenu.OnShown += new System.Action(() =>
@@ -64,12 +64,12 @@ public class Interaction_Rally : Interaction
             foreach (FollowerInformationBox fib in followerSelectMenu._followerInfoBoxes)
             {
                 if (Plugin.summonList.Contains(fib._followerInfo)) {
-                    fib.FollowerRole.text = "Currently Rallied! |  Health: " + (0.5 + fib._followerInfo.FollowerLevel * 1)  + " | Attack: " + (fib._followerInfo.FollowerLevel * 0.5);
+                    fib.FollowerRole.text = "Currently Rallied! |  Health: " + (0.5 + fib._followerInfo.DwellingLevel * 1)  + " | Attack: " + (fib._followerInfo.DwellingLevel * 0.5);
                     fib.FollowerSpine.AnimationState.SetAnimation(0, "attack-impact-multi", true);
 
                 }
                 else {
-                    fib.FollowerRole.text = "Rally | Health: " + (0.5 + fib._followerInfo.FollowerLevel * 1) + " | Attack: " + (fib._followerInfo.FollowerLevel * 0.5);
+                    fib.FollowerRole.text = "Rally | Health: " + (0.5 + fib._followerInfo.DwellingLevel * 1) + " | Attack: " + (fib._followerInfo.DwellingLevel * 0.5);
                 }
             }
         });
@@ -108,7 +108,7 @@ public class Interaction_Rally : Interaction
             }
         }
 
-        followerSelectMenu.Show(DataManager.Instance.Followers, blackList, false, UpgradeSystem.Type.Count, true, true, true);
+        followerSelectMenu.Show(MissionaryManager.FollowersAvailableForMission(), false, UpgradeSystem.Type.Building_Missionary, true, true, true);
 
         followerSelectMenu.OnFollowerSelected += new System.Action<FollowerInfo>(this.OnCommanderChosen);
         followerSelectMenu.OnShown += new System.Action(() =>

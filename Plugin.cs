@@ -18,7 +18,7 @@ namespace SuperchargedFollowers
     {
         public const string PluginGuid = "InfernoDragon0.cotl.SuperchargedFollowers";
         public const string PluginName = "SuperchargedFollowers";
-        public const string PluginVer = "1.0.3";
+        public const string PluginVer = "1.0.5";
 
         internal static ManualLogSource Log;
         internal readonly static Harmony Harmony = new(PluginGuid);
@@ -28,6 +28,7 @@ namespace SuperchargedFollowers
         //Config for Tarots
         internal static ConfigEntry<float> followerTransparency;
         internal static ConfigEntry<bool> shouldCommanderTransparent;
+        internal static ConfigEntry<bool> shouldBypassHitStop;
 
         //Summoning list for Rally Banner
         public static List<FollowerInfo> summonList = new();
@@ -63,6 +64,7 @@ namespace SuperchargedFollowers
             //SETUP: Config
             followerTransparency = Config.Bind("SuperchargedFollowers", "FollowerTransparency", 0.5f, "Transparency of the followers, from 0 to 1");
             shouldCommanderTransparent = Config.Bind("SuperchargedFollowers", "CommanderTransparency", true, "Should the commander be transparent?");
+            shouldBypassHitStop = Config.Bind("SuperchargedFollowers", "BypassHitStop", true, "Should attacks bypass hitstop feature? (recommended to TRUE for improved combat experience)");
             /*ammoConfig = Config.Bind("SuperchargedTarots", "Ammo", 66f, "Fervor Use Discount (higher the lesser, but dont go over 100)");*/
 
             //ADD: ITEMS

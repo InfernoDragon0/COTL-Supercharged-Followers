@@ -1,0 +1,9 @@
+{
+    "name": "SuperchargedFollowers",
+    "version_number": "1.0.5",
+    "website_url": "https://github.com/InfernoDragon0/COTL-Supercharged-Followers",
+    "description": "Bring your followers to battle! Level up their stats and award them with Prestige!",
+    "dependencies": [
+        "xhayper-COTL_API-0.3.1"
+    ]
+}
